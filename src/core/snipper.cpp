@@ -92,5 +92,20 @@ string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_f
             this->finclude(f_fields[i]);
         if (i < h_fields.size())
             this->hinclude(h_fields[i]);
+        output += this->snippet_output(contents[i]);
     }
+    return output;
+}
+string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<void *>> f_pointers, vector<vector<void *>> h_pointers)
+{
+    string output = "";
+    for (uint32_t i = 0; i < contents.size(); i++)
+    {
+        if (i < f_fields.size())
+            this->finclude_bin(f_pointers[i]);
+        if (i < h_fields.size())
+            this->hinclude_bin(h_pointers[i]);
+        output += this->snippet_output(contents[i]);
+    }
+    return output;
 }
