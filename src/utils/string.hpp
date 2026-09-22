@@ -40,7 +40,7 @@ inline bool valid_string(string text)
 	return text.find_first_of('"') != string::npos && text.find_first_of('"') != text.find_last_of('"');
 };
 
-string toBinary(long int value, uint8_t mode, bool bigEndian);
+string toBinary(uint64_t value, uint8_t mode, bool bigEndian);
 inline string toBinaryu64(uint64_t value, bool bigEndian)
 {
 	string output(8, 0);
@@ -105,6 +105,15 @@ string setEndian(T value, bool bigEndian)
 	for (uint8_t i = 0; i < value; ++i)
 	{
 		output[i] = static_cast<char>((value >> (i * 8)) & 0xFF);
+	}
+	if (bigEndian)
+	{
+		string reversed(8, 0);
+		for (uint8_t i = 0; i < 8; ++i)
+		{
+			reversed[i] = output[7 - i];
+		}
+		return reversed;
 	}
 
 	return output;
