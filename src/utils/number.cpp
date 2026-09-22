@@ -18,7 +18,20 @@ uint64_t to_uint64(string text)
 
 	for (uint32_t i = 0; i < text.length(); i++)
 	{
-		if (!text[i] - 48)
+		if (!(text[i] - 48))
+			output *= 10;
+		output += (text[i] - 48) * pow(10, i);
+	}
+
+	return output;
+};
+uint64_t to_uint64(char *text)
+{
+	uint64_t output = 0;
+
+	for (uint32_t i = 0; text[i]; i++)
+	{
+		if (!(text[i] - 48))
 			output *= 10;
 		output += (text[i] - 48) * pow(10, i);
 	}

@@ -97,4 +97,16 @@ inline string toLowercase(string text)
 
 	return output;
 }
+
+template <typename T = long int>
+string setEndian(T value, bool bigEndian)
+{
+	string output(value, 0);
+	for (uint8_t i = 0; i < value; ++i)
+	{
+		output[i] = static_cast<char>((value >> (i * 8)) & 0xFF);
+	}
+
+	return output;
+}
 #endif

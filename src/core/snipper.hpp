@@ -4,6 +4,7 @@
 #include <utils/number.hpp>
 
 using std::string;
+using std::to_string;
 using std::vector;
 
 struct _GX_SNIPPER_config_t
@@ -37,6 +38,9 @@ public:
     string snippet_output(string content);
     string txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields);
     string binout(vector<string> &contents, vector<void *> f_fields, vector<void *> h_fields);
+
+    string txtout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
+    string binout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
 
     void hinclude_bin(vector<void *> fields);
     void hinclude(vector<_GX_SNIPPER_field_t> fields);

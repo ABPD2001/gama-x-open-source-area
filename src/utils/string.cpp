@@ -1,6 +1,6 @@
 #include "./string.hpp"
 
-string toBinary(long int value, uint8_t mode, bool bigEndian)
+string toBinary(uint64_t value, uint8_t mode, bool bigEndian)
 {
 	if (mode > sizeof(value))
 	{
