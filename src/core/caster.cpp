@@ -93,4 +93,50 @@ void _GX_CASTER::update(string content)
 
 string _GX_CASTER::cast_format(_GX_CASTER_format_t format)
 {
+    string output = "";
+
+    if (format.binary)
+    {
+        vector<string> units = split(format.format, ',');
+
+        for (uint32_t i = 0; i < this->snippets.size(); i++)
+        {
+            for (uint32_t j = 0; j < this->snippets[i].size(); j++)
+            {
+                if (units[j] == "s64")
+                    output += toBinaryu64(this->snippets[i][j], format.endianness);
+                else
+                    output += toBinary(this->snippets[i][j], (uint8_t)(to_uint32(units[j].substr(1)) / 8), format.endianness);
+            }
+        }
+    }
+    else
+    {
+        if (format.seperator)
+        {
+            for (uint32_t i = 0; i < this->snippets.size(); i++)
+            {
+                for (uint32_t j = 0; j < this->snippets[i].size(); j++)
+                {
+                    output += (!j ? format.seperator : "") + to_string(this->snippets[i][j]);
+                }
+                output += '\n';
+            }
+        }
+        else
+        {
+            string l;
+            for (uint32_t i = 0; i < this->snippets.size(); i++)
+            {
+                l = this->format.format;
+                for (uint32_t j = 0; j < this->snippets[i].size(); j++)
+                {
+                    replaceAll(l, "<" + to_string(j) + ">", to_string(this->snippets[i][j]));
+                }
+                output += l + '\n';
+            }
+        }
+    }
+
+    return output;
 }

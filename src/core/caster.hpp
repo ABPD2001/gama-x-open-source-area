@@ -5,6 +5,7 @@
 
 using std::stoll;
 using std::string;
+using std::to_string;
 using std::vector;
 
 struct _GX_CASTER_format_t
