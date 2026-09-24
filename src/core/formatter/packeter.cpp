@@ -1,14 +1,14 @@
 #include "./packetr.hpp"
 
-_GX_CASTER_PACKETER::_GX_CASTER_PACKETER() {}
+_GX_PACKETER::_GX_PACKETER() {}
 
-void _GX_CASTER_PACKETER::config(uint32_t packet_size, string output_name = "")
+void _GX_PACKETER::config(uint32_t packet_size, string output_name = "")
 {
     this->packet_size = packet_size;
     this->output_name = output_name;
 }
 
-void _GX_CASTER_PACKETER::generate(vector<string> &output_packets, string content)
+void _GX_PACKETER::generate(vector<string> &output_packets, string content)
 {
     output_packets.clear();
     for (uint32_t i = 0; i < ceil(content.length() / this->packets_size); i++)
