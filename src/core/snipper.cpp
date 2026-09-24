@@ -7,8 +7,15 @@ void _GX_SNIPPER::config(struct _GX_SNIPPER_config_t config)
 }
 string _GX_SNIPPER::snippet_output(string content)
 {
-    this->content = content;
-    return this->head + this->config_st.header_content_seperator + this->content + this->config_st.footer_content_seperator + this->footer;
+    string output = this->head + this->config_st.header_content_seperator + this->content + this->config_st.footer_content_seperator + this->footer;
+    if (this->config_st.alignment && output.length() % this->config_st.alignment)
+    {
+        for (uint32_t i = 0; i < output.length() % this->config_st.alignment; i++)
+        {
+            output += this->config_st.padding_filler;
+        }
+    }
+    return output;
 }
 
 void _GX_SNIPPER::hinclude(vector<_GX_SNIPPER_field_t> fields)
@@ -147,7 +154,7 @@ string _GX_SNIPPER::txtout_single(string content, vector<_GX_SNIPPER_field_t> f_
     return this->snippet_output(content);
 }
 
-string _GX_SNIPPER::binout_single(vectorstring content, vector<void *> f_pointers, vector<void *> h_pointers)
+string _GX_SNIPPER::binout_single(string content, vector<void *> f_pointers, vector<void *> h_pointers)
 {
     if (f_pointers.size())
         this->finclude(f_pointers, content.size());

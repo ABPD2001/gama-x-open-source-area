@@ -18,6 +18,8 @@ struct _GX_SNIPPER_config_t
     string header_content_seperator = "\n";
     string footer_content_seperator = "\n";
     string snippet_seperator = "\r";
+    uint32_t alignment = 0;
+    char padding_filler = 0;
     bool header_binary = false;
     bool footer_binary = false;
     bool binary_endianness = false; // Small-Endian
@@ -32,7 +34,6 @@ struct _GX_SNIPPER_field_t
 class _GX_SNIPPER
 {
 private:
-    string content;
     string head = "";
     string footer = "";
     struct _GX_SNIPPER_config_t config_st;
@@ -44,8 +45,8 @@ public:
     string txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields);
     string binout(vector<string> &contents, vector<void *> f_fields, vector<void *> h_fields);
 
-    string txtout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
-    string binout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
+    string txtout_single(string content, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
+    string binout_single(string content, vector<void *> f_fields, vector<void *> h_fields);
 
     void hinclude_bin(vector<void *> fields, uint32_t size);
     void hinclude(vector<_GX_SNIPPER_field_t> fields);
