@@ -14,7 +14,7 @@ using std::vector;
 struct _GX_SNIPPER_config_t
 {
     string header_format;
-    string footer_format;
+    string footer_format = "";
     string header_content_seperator = "\n";
     string footer_content_seperator = "\n";
     string snippet_seperator = "\r";

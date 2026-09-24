@@ -7,7 +7,7 @@ void _GX_SNIPPER::config(struct _GX_SNIPPER_config_t config)
 }
 string _GX_SNIPPER::snippet_output(string content)
 {
-    string output = this->head + this->config_st.header_content_seperator + this->content + this->config_st.footer_content_seperator + this->footer;
+    string output = this->head + this->config_st.header_content_seperator + this->content + (this->config_st.footer_format.length() ? this->config_st.footer_content_seperator + this->footer : "");
     if (this->config_st.alignment && output.length() % this->config_st.alignment)
     {
         for (uint32_t i = 0; i < output.length() % this->config_st.alignment; i++)
@@ -57,6 +57,12 @@ void _GX_SNIPPER::hinclude_bin(vector<void *> fields, uint32_t size)
 
 void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
 {
+
+    if (!this->config_st.footer_format)
+    {
+        this->footer = "";
+        return;
+    }
     this->footer = this->config_st.footer_format;
     for (_GX_SNIPPER_field_t f : fields)
     {
@@ -67,6 +73,8 @@ void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
 void _GX_SNIPPER::finclude_bin(vector<void *> fields, uint32_t size)
 {
     this->footer = "";
+    if (!this->config_st.footer_format)
+        return;
     string buffer = "";
     const vector<string> bfields_format = split(this->config_st.footerr_format, ',');
 

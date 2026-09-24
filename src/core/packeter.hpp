@@ -12,7 +12,6 @@ using std::vector;
 class _GX_PACKETER
 {
 private:
-    string output_name;
     uint32_t packet_size;
 
 public:
