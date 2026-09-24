@@ -20,7 +20,7 @@ void _GX_SNIPPER::hinclude(vector<_GX_SNIPPER_field_t> fields)
     }
 }
 
-void _GX_SNIPPER::hinclude_bin(vector<void *> fields)
+void _GX_SNIPPER::hinclude_bin(vector<void *> fields, uint32_t size)
 {
     this->head = "";
     string buffer = "";
@@ -29,7 +29,7 @@ void _GX_SNIPPER::hinclude_bin(vector<void *> fields)
     for (uint32_t i = 0; i < fields.size(); i++)
     {
         char *val = fields + i; // cast pointer.
-        if (bfields_format[i][0] == 's')
+        if (bfields_format[i] == "string")
         // if it was string.
         {
             for (uint32_t j = 0; val[j]; j++)
@@ -37,6 +37,9 @@ void _GX_SNIPPER::hinclude_bin(vector<void *> fields)
                 this->head += val[j];
             }
         }
+        else if (bfields_format[i] == "size")
+            this->footer += toBinary(size, 4, this->config_st.binary_endianness);
+
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1));
@@ -54,7 +57,7 @@ void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
     }
 }
 
-void _GX_SNIPPER::finclude_bin(vector<void *> fields)
+void _GX_SNIPPER::finclude_bin(vector<void *> fields, uint32_t size)
 {
     this->footer = "";
     string buffer = "";
@@ -63,7 +66,7 @@ void _GX_SNIPPER::finclude_bin(vector<void *> fields)
     for (uint32_t i = 0; i < fields.size(); i++)
     {
         char *val = fields + i; // cast pointer.
-        if (bfields_format[i][0] == 's')
+        if (bfields_format[i] == "string")
         // if it was string.
         {
             for (uint32_t j = 0; val[j]; j++)
@@ -71,6 +74,9 @@ void _GX_SNIPPER::finclude_bin(vector<void *> fields)
                 this->footer += val[j];
             }
         }
+        else if (bfields_format[i] == "size")
+            this->footer += toBinary(size, 4, this->config_st.binary_endianness);
+
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1));
@@ -110,28 +116,21 @@ string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<void *>> f_po
     {
         if (i < f_fields.size())
         {
-            this->finclude_bin(f_pointers[i]);
+            this->finclude_bin(f_pointers[i], contents.size());
         }
         if (i < h_fields.size())
-            this->hinclude_bin(h_pointers[i]);
+            this->hinclude_bin(h_pointers[i], contents.size());
         output += this->snippet_output(contents[i]);
     }
     return output;
 }
 
-string _GX_SNIPPER::txtout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields)
+string _GX_SNIPPER::txtout_single(string content, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields)
 {
-    uint32_t total_size = 0;
-
-    for (string c : contents)
-    {
-        total_size += c.size();
-    }
-
     chrono::system_clock::time_point chrono_now = chrono::system_clock::now();
     chrono::system_clock::duration chrono_duration = chrono_now.time_since_epoch();
     const chrono::system_clock::duration unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono_duration).count();
-    vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", "0"}, {"SIZE", to_string(total_size)}, {"UNIX_MS", to_string(unix_ms)}};
+    vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", "0"}, {"SIZE", to_string(content.size())}, {"UNIX_MS", to_string(unix_ms)}};
 
     if (f_fields.size())
     {
@@ -145,16 +144,16 @@ string _GX_SNIPPER::txtout_single(vector<string> &contents, vector<_GX_SNIPPER_f
         this->hinclude(h_fields);
     }
 
-    return this->snippet_output(contents);
+    return this->snippet_output(content);
 }
 
-string _GX_SNIPPER::binout_single(vector<string> &contents, vector<void *> f_pointers, vector<void *> h_pointers)
+string _GX_SNIPPER::binout_single(vectorstring content, vector<void *> f_pointers, vector<void *> h_pointers)
 {
     if (f_pointers.size())
-        this->finclude(f_pointers);
+        this->finclude(f_pointers, content.size());
 
     if (h_pointers.size())
-        this->hinclude(h_pointers);
+        this->hinclude(h_pointers, content.size());
 
-    return this->snippet_output(contents);
+    return this->snippet_output(content);
 }

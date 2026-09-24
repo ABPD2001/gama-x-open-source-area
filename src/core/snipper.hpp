@@ -47,10 +47,10 @@ public:
     string txtout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
     string binout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
 
-    void hinclude_bin(vector<void *> fields);
+    void hinclude_bin(vector<void *> fields, uint32_t size);
     void hinclude(vector<_GX_SNIPPER_field_t> fields);
 
-    void finclude_bin(vector<void *> fields);
+    void finclude_bin(vector<void *> fields, uint32_t size);
     void finclude(vector<_GX_SNIPPER_field_t> fields);
 };
 #endif
