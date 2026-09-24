@@ -81,17 +81,24 @@ void _GX_SNIPPER::finclude_bin(vector<void *> fields)
 
 string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields)
 {
+    chrono::system_clock::time_point chrono_now = chrono::system_clock::now();
+    chrono::system_clock::duration chrono_duration = chrono_now.time_since_epoch();
+    const chrono::system_clock::duration unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono_duration).count();
+
     string output = "";
     for (uint32_t i = 0; i < contents.size(); i++)
     {
-        vector<_GX_SNIPPER_field_t> default_hfields = {{"IDX", String(i)}, {"SIZE", to_string(h_fields[i].size())}};
-        vector<_GX_SNIPPER_field_t> default_ffields = {{"IDX", String(i)}, {"SIZE", to_string(f_fields[i].size())}};
-
+        vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", String(i)}, {"SIZE", to_string(contents[i].size())}, {"UNIX_MS", to_string(unix_ms)}};
         if (i < f_fields.size())
+        {
+            f_fields.insert(f_fields.end(), default_fields.begin(), default_fields.end());
             this->finclude(f_fields[i]);
+        }
         if (i < h_fields.size())
+        {
+            h_fields.insert(h_fields.end(), default_fields.begin(), default_fields.end());
             this->hinclude(h_fields[i]);
-
+        }
         output += this->snippet_output(contents[i]);
     }
     return output;
@@ -114,11 +121,29 @@ string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<void *>> f_po
 
 string _GX_SNIPPER::txtout_single(vector<string> &contents, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields)
 {
+    uint32_t total_size = 0;
+
+    for (string c : contents)
+    {
+        total_size += c.size();
+    }
+
+    chrono::system_clock::time_point chrono_now = chrono::system_clock::now();
+    chrono::system_clock::duration chrono_duration = chrono_now.time_since_epoch();
+    const chrono::system_clock::duration unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono_duration).count();
+    vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", "0"}, {"SIZE", to_string(total_size)}, {"UNIX_MS", to_string(unix_ms)}};
+
     if (f_fields.size())
+    {
+        f_fields.insert(f_fields.end(), default_fields.begin(), default_fields.end());
         this->finclude(f_fields);
+    }
 
     if (h_fields.size())
+    {
+        h_fields.insert(h_fields.end(), default_fields.begin(), default_fields.end());
         this->hinclude(h_fields);
+    }
 
     return this->snippet_output(contents);
 }

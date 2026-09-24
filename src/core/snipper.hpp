@@ -1,8 +1,10 @@
 #include <string>
 #include <vector>
+#include <chrono>
 #include <utils/string.hpp>
 #include <utils/number.hpp>
 
+using std::chrono;
 using std::string;
 using std::to_string;
 using std::vector;
