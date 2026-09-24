@@ -1,3 +1,5 @@
+#ifndef SNIPPER_HPP
+#define SNIPPER_HPP
 #include <string>
 #include <vector>
 #include <chrono>
@@ -15,6 +17,7 @@ struct _GX_SNIPPER_config_t
     string footer_format;
     string header_content_seperator = "\n";
     string footer_content_seperator = "\n";
+    string snippet_seperator = "\r";
     bool header_binary = false;
     bool footer_binary = false;
     bool binary_endianness = false; // Small-Endian
@@ -50,3 +53,4 @@ public:
     void finclude_bin(vector<void *> fields);
     void finclude(vector<_GX_SNIPPER_field_t> fields);
 };
+#endif

@@ -1,3 +1,5 @@
+#ifndef PACKETER_HPP
+#define PACKETER_HPP
 #include <string>
 #include <vector>
 #include <cmath>
@@ -18,3 +20,4 @@ public:
     void config(uint32_t packet_size, string output_name = "");
     void generate(vector<string> &output_packets, string content);
 };
+#endif

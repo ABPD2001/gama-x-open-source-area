@@ -99,9 +99,9 @@ string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_f
             h_fields.insert(h_fields.end(), default_fields.begin(), default_fields.end());
             this->hinclude(h_fields[i]);
         }
-        output += this->snippet_output(contents[i]);
+        output += this->snippet_output(contents[i]) + this->config_st.snippet_seperator;
     }
-    return output;
+    return output.substr(0, output.length() - 1);
 }
 string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<void *>> f_pointers, vector<vector<void *>> h_pointers)
 {

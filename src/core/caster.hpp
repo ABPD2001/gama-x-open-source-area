@@ -1,3 +1,5 @@
+#ifndef CASTER_HPP
+#define CASTER_HPP
 #include <string>
 #include <vector>
 #include <utils/string.hpp>
@@ -29,3 +31,4 @@ public:
     void update(string content);
     string cast_format(_GX_CASTER_format_t format);
 };
+#endif
