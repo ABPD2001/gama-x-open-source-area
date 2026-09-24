@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <core/caster.hpp>
 #include <core/packeter.hpp>
 #include <core/snipper.hpp>
@@ -6,6 +7,8 @@
 #include <help.hpp>
 
 using std::cout;
+using std::fstream;
+using std::ios;
 
 _GX_CASTER _caster_;
 _GX_SNIPPER _snipper_;
@@ -13,7 +16,9 @@ _GX_PACKETER _packeter_;
 _GX_SNIPPER_config_t _snipper_conf_;
 _GX_CASTER_format_t _caster_format_from_;
 _GX_CASTER_format_t *_caster_format_to_ = 0;
-uint32_t packeter_size = 0, multi_casting = 1;
+uint32_t packeter_size = 0, multi_casting = 1, merge_maximum_file_size = 8096;
+char merge_sepc = '\0';
+bool merge_bin = false;
 
 void arg_error(string argname, string reason)
 {
@@ -61,6 +66,13 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         valids.push_back("--packet-size");
         valuars.push_back("-s");
         valuars.push_back("--packet-size");
+    }
+    else if (argv[1] == "merge")
+    {
+        vector<string> valid_args = {"-b", "--binary", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-M", "--file-max-size"};
+        vector<string> valuar_args = {"-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-M", "--file-max-size"};
+        valids.insert(valids.end(), valid_args.begin(), valid_args.end());
+        valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
     for (uint32_t i = 2; i < argc; i++)
     {
@@ -140,6 +152,17 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             if (argument == "-s" || argument == "--packet-size")
                 packeter_size = to_uint32(value);
         }
+        else if (argv[1] == "merge")
+        {
+            if (argument == "-b" || argument == "--binary")
+                merge_bin = true;
+            else if (argument == "-c" || argument == "--seperator-char")
+                merge_sepc = value[0];
+            else if (argument == "-Ac" || argument == "--seperator-char-ascii")
+                merge_sepc = (char)to_uint32(value);
+            else if (argument == "-M" || argument == "--file-max-size")
+                merge_maximum_file_size = to_uint32(value);
+        }
         else
         {
             if (argument == "-m" || argument == "--multi-cast")
@@ -168,7 +191,7 @@ int main(char **argv, int argc)
              << HELP_TXT << "\n";
         exit(1);
     }
-    else if (argv[1] != "caster" && argv[1] != "snipper" && argv[1] != "packeter")
+    else if (argv[1] != "merge" && argv[1] != "caster" && argv[1] != "snipper" && argv[1] != "packeter")
     {
         cout << "Unkown verb '" << argv[1] << "'!\n"
              << HELP_TXT << "\n";
@@ -225,6 +248,11 @@ int main(char **argv, int argc)
                 exit(1);
             }
         }
+        if (params.size() > 1)
+        {
+            cout << "Multi-Input is not acceptable within 'caster' verb, use 'merge' verb, then try again!\n";
+            exit(1);
+        }
     }
 
     else if (argv[1] == "snipper")
@@ -259,7 +287,84 @@ int main(char **argv, int argc)
         exit(1);
     }
 
-    // ...
+    fstream f_inp;
+    fstream f_out;
+
+    if (argv[1] == "merge")
+    {
+        auto out_open_stat = ios::out;
+        auto inp_open_stat = ios::in;
+        char ch;
+
+        if (merge_bin)
+        {
+            out_open_stat |= ios::binary;
+            inp_open_stat |= ios::binary;
+        }
+
+        f_out.open(output, out_open_stat);
+        if (!f_out.is_open())
+        {
+            cout << "Failed to open (as output destiniation) '" << file << "'!\n";
+            exit(1);
+        }
+        for (string file : params)
+        {
+            f_inp.open(file, inp_open_stat);
+            if (!f_inp.is_open())
+            {
+                cout << "Failed to open '" << file << "'!\n";
+                exit(1);
+            }
+            else if (merge_bin)
+            {
+                char read_buffer[merge_maximum_file_size];
+                f_inp.read((char *)read_buffer, merge_maximum_file_size);
+                if (f_inp.bad())
+                {
+                    cout << "Failed to read from (binary) '" << file << "'!\n";
+                    goto merge_fail;
+                }
+                f_out.write((char *)read_buffer, f_inp.gcount());
+                if (f_out.bad())
+                {
+                    cout << "Failed to write into (binary as output) '" << output << "'!\n";
+                    goto merge_fail;
+                }
+                f_inp.close(); // finally, close the file.
+            }
+            else
+            {
+                string temp_content;
+                while (f_inp.get(&ch))
+                {
+                    temp_content += ch;
+                }
+
+                if (f_inp.bad())
+                {
+                    cout << "Failed to read from '" << file << "'!\n";
+                    goto merge_fail;
+                }
+                f_out << temp_content;
+                if (f_out.bad())
+                {
+                    cout << "Failed to write into (as output) '" << output << "'!\n";
+                    goto merge_fail;
+                }
+                f_inp.close();
+            }
+            f_out.close(); // close the output.
+        }
+        exit(0);
+    merge_fail:
+        f_out.close();
+        f_inp.close();
+        exit(1);
+    }
+    else if (argv[1] == "packeter")
+    {
+    }
 
     return 0;
 }
