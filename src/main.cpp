@@ -147,10 +147,13 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             else if (argument == "-Ac" || argument == "--snippets-seperator-char-ascii")
                 _snipper_conf_.snippet_seperator = (char)to_uint32(value);
 
-            else if (argument == "-b" || argument == "--binary-big-endian")
+            else if (argument == "-B" || argument == "--binary-big-endian")
+            {
+                binary = true;
                 _snipper_conf_.binary_endianness = true;
+            }
 
-            evlse if (argument == "-B" || argument == "--full-binary")
+            else if (argument == "-b" || argument == "--binary")
                 binary = true;
 
             else if (argument == "-A" || argument == "--alignment")
@@ -181,7 +184,10 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             else if (argument == "-b" || argument == "--binary")
                 _caster_format_from_.binary = true;
             else if (argument == "-B" || argument == "--binary-big-endian")
+            {
+                _caster_format_from_.binary = true;
                 _caster_format_from_.endianness = true;
+            }
             else if (argument == "-c" || argument == "--seperator-char")
                 _caster_format_from_.seperator = value[0];
             else if (argument == "-Ac" || argument == "--seperator-char-ascii")
@@ -547,9 +553,33 @@ int main(char **argv, int argc)
             cout << "Failed to open '" << params[0] << "'!\n";
             exit(1);
         }
+
         const vector<string> outputs = split(output, ',');
         string temp;
         char ch;
+
+        for (uint32_t i = 0; i < outputs.size(); i++)
+        {
+            f_inp.open(_caster_format_to_[i].format, ios::in);
+            if (!f_inp.is_open())
+            {
+                cout << "Failed to open format/logic config file '" << _caster_format_to_[i].format << "'!\n";
+                exit(1);
+            }
+            while (f_inp.get(ch))
+            {
+                temp += ch;
+            }
+            if (f_inp.bad())
+            {
+                cout << "Failed to read format/logic config file '" << _caster_format_to_[i].format << "'!\n";
+                f_inp.close();
+                exit(1);
+            }
+            f_inp.close();
+            _caster_format_to_[i].format = temp;
+        }
+        temp.clear();
 
         while (f_inp.get(&ch))
         {
