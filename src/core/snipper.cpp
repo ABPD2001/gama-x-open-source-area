@@ -39,13 +39,15 @@ void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
             // if it was string.
             this->head += fields[i];
 
-        else if (bfields_format[i] == "size")
-            this->footer += toBinary(size, 4, this->config_st.binary_endianness);
-
         else
         {
-            const uint32_t s = to_uint32(bfields_format[i].substr(1));
-            this->head += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
+            const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
+            if (fields[i] == "size")
+                this->head += toBinary(size, s, this->config_st.binary_endianness);
+            if (bfields_format[i] == "u64")
+                this->head += toBinaryu64(to_uint64(fields[i]), s, this->config_st.binary_endianness);
+            else
+                this->head += toBinary(stoll(fields[i]), s, this->config_st.binary_endianness);
         }
     }
 }
@@ -76,17 +78,17 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
     for (uint32_t i = 0; i < fields.size(); i++)
     {
         if (bfields_format[i] == "string")
-        // if it was string.
-        {
+            // if it was string.
             this->footer += fields[i];
-        }
-        else if (bfields_format[i] == "size")
-            this->footer += toBinary(size, 4, this->config_st.binary_endianness);
-
         else
         {
-            const uint32_t s = to_uint32(bfields_format[i].substr(1));
-            this->footer += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
+            const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
+            if (fields[i] == "size")
+                this->footer += toBinary(size, s, this->config_st.binary_endianness);
+            if (bfields_format[i] == "u64")
+                this->footer += toBinaryu64(to_uint64(fields[i]), s, this->config_st.binary_endianness);
+            else
+                this->footer += toBinary(stoll(fields[i]), s, this->config_st.binary_endianness);
         }
     }
 }

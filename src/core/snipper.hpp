@@ -7,6 +7,7 @@
 #include <utils/number.hpp>
 
 using std::chrono;
+using std::stoll;
 using std::string;
 using std::to_string;
 using std::vector;
