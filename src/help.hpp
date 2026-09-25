@@ -1,7 +1,8 @@
+```cpp
 #ifndef HELP_HPP
 #define HELP_HPP
 
-constexpr const char *HELP_TXT = R"(
+    constexpr const char *HELP_TXT = R"(
 Basic Usage
     gxf [VERB] [ARGUMENTS/FLAGS]...
 
@@ -24,7 +25,7 @@ Verbs:
 
         Flags:
             [-A, --alignment]
-                Align each snippet (including its header and footer) to the
+                Align each snippet, including its header and footer, to the
                 specified byte alignment.
 
                 Example:
@@ -38,65 +39,70 @@ Verbs:
 
             [-C, --config]
                 Specify the configuration file containing header/footer
-                formats and section field values. See the configuration
-                format documentation for details.
+                formats and section field values.
 
-            Config file format's format:
-            ***
-            [HEADER FORMAT](format...)
-            [FOOTER FORMAT](format...)
+                Configuration file format:
 
-            [HEADER]
-            fields...
-            fields...
-            ...
-            
-            [FOOTER]
-            fields... # this is a comment.
-            fields...
-            ...
-            
-            # this is a comment.
-            ***
+                    [HEADER FORMAT](format...)
+                    [FOOTER FORMAT](format...)
 
-            Config file format should be like (.txt):
-            ***
-                [HEADER FORMAT](size=<SIZE>,name=<NAME>,id=<IDX>) # <SIZE> and <IDX> are pre-defined.
-                [FOOTER FORMAT]() # leave it empty as no footer.
+                    [HEADER]
+                    fields...
+                    fields...
+                    ...
 
-                [HEADER]
-                NAME=my_app
-                NAME=my_app2
+                    [FOOTER]
+                    fields...
+                    fields...
+                    ...
 
-                [FOOTER]
-                # leave it empty as none.
-            ***
-            NOTE: each tag inside of <...> will be replaced with defined fields in HEADER and FOOTER parts.
-            pre-defined tags:
-                <SIZE>:     size of snippet context.
-                <UNIX_MS>:  date time in unix (ms). 
-                <IDX>:      index of snippet. 
+                Lines beginning with '#' are treated as comments.
 
-            and (.bin):
-            ***
-                [HEADER FORMAT](string,u64,s64,u16,u16) # string -> text + null terminator at the end 
-                [FOOTER FORMAT]() # leave it empty as no footer.
+                Example (.txt):
 
-                [HEADER]
-                hello,432,-2,23,234 # snippet 1 header.
-                hello2,_size_,-234,3,4  # snippet 2 header.
+                    [HEADER FORMAT](size=<SIZE>,name=<NAME>,id=<IDX>)
+                    [FOOTER FORMAT]()
 
-                [FOOTER]
-                # leave it empty as none.
-            ***
-            NOTE: HEADER and FOOTER fields order should be same with its defined format.
-            NOTE: '_size_' is pre-defined value that represent size of snippet context.
+                    [HEADER]
+                    NAME=my_app
+                    NAME=my_app2
 
-            types for fields in binary are:
-                string: string text with null terminator.
-                text: string text without null terminator.
-                uX: unsigned number, X = bits, u64, u32, ...
-                sX: signed number, X = bits, s64, s32, ...
+                    [FOOTER]
+                    # No footer fields.
+
+                Tags enclosed in '<...>' are replaced with predefined values
+                or fields defined in the HEADER and FOOTER sections.
+
+                Predefined tags:
+
+                    <SIZE>      Size of the snippet context.
+                    <UNIX_MS>   Current Unix timestamp in milliseconds.
+                    <IDX>       Zero-based snippet index.
+
+                Binary format:
+
+                    [HEADER FORMAT](string,u64,s64,u16,u16)
+                    [FOOTER FORMAT]()
+
+                    [HEADER]
+                    hello,432,-2,23,234
+                    hello2,_size_,-234,3,4
+
+                    [FOOTER]
+                    # No footer fields.
+
+                HEADER and FOOTER field order must match the order specified
+                by their corresponding format definitions.
+
+                The predefined '_size_' value represents the size of the
+                current snippet context.
+
+                Supported binary field types:
+
+                    string      Null-terminated string.
+                    text        Non-null-terminated string.
+                    uX          Unsigned integer of X bits (u8, u16, u32, u64, ...).
+                    sX          Signed integer of X bits (s8, s16, s32, s64, ...).
 
             [-S, --meta-snipping]
                 Enable metadata injection mode.
@@ -164,8 +170,8 @@ Verbs:
 
             [-f, --format-logic]
                 Specify the input format/logic configuration file.
-                This format is based on the '-l' and '-f' options of the
-                Gama-X compiler ('gx').
+                The format specification is based on the '-l' and '-f'
+                options of the Gama-X compiler ('gx').
 
             [-c, --separator-char]
                 Specify the input separator character instead of using
@@ -186,8 +192,8 @@ Verbs:
 
             [-tf, --target-format-logic]
                 Specify the output format/logic configuration file.
-                This format is based on the '-l' and '-f' options of the
-                Gama-X compiler ('gx').
+                The format specification is based on the '-l' and '-f'
+                options of the Gama-X compiler ('gx').
 
             [-tc, --target-separator-char]
                 Specify the output separator character instead of using
@@ -256,3 +262,4 @@ V1.0.0
 )";
 
 #endif
+```
