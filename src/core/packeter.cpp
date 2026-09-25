@@ -2,10 +2,9 @@
 
 _GX_PACKETER::_GX_PACKETER() {}
 
-void _GX_PACKETER::config(uint32_t packet_size, string output_name = "")
+void _GX_PACKETER::config(uint32_t packet_size)
 {
     this->packet_size = packet_size;
-    this->output_name = output_name;
 }
 
 void _GX_PACKETER::generate(vector<string> &output_packets, string content)

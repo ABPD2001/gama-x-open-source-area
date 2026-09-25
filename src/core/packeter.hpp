@@ -16,7 +16,7 @@ private:
 
 public:
     _GX_PACKETER();
-    void config(uint32_t packet_size, string output_name = "");
+    void config(uint32_t packet_size);
     void generate(vector<string> &output_packets, string content);
 };
 #endif

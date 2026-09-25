@@ -16,9 +16,9 @@ _GX_PACKETER _packeter_;
 _GX_SNIPPER_config_t _snipper_conf_;
 _GX_CASTER_format_t _caster_format_from_;
 _GX_CASTER_format_t *_caster_format_to_ = 0;
-uint32_t packeter_size = 0, multi_casting = 1, merge_maximum_file_size = 8096;
+uint32_t packeter_size = 0, multi_casting = 1, maximum_file_size = 8096;
 char merge_sepc = '\0';
-bool merge_bin = false;
+bool binary = false;
 
 void arg_error(string argname, string reason)
 {
@@ -38,6 +38,37 @@ void caster_format_processing(string arg, string val, _GX_CASTER_format_t &forma
     else if (f == "c" || f == "seperator-char")
         format.seperator = value[0];
 }
+
+inline void digiter(string num, uint32_t count)
+{
+    string output = "";
+    for (uint32_t i = 0; i < count - num.length(); i++)
+    {
+        output += '0';
+    }
+    output += num;
+    return output;
+}
+
+void output_filename_parser(vector<string> &output_names, string output, uint32_t counts)
+{
+    uint32_t dcounts = 0;
+    string replace_str = "";
+    for (char c : output)
+    {
+        if (c == '$')
+        {
+            dcounts++;
+            replace_str += '$';
+        }
+        else if (dcounts && c != '$')
+            break;
+    }
+    for (uint32_t i = 0; i < counts; i++)
+    {
+        output_names.push_back(output.replace(replace_str, digiter(i, dcounts)));
+    }
+};
 
 void args_processing(vector<string> &values, string &output, char **argv, int argc)
 {
@@ -62,10 +93,10 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
     }
     else if (argv[1] == "packeter")
     {
-        valids.push_back("-s");
-        valids.push_back("--packet-size");
-        valuars.push_back("-s");
-        valuars.push_back("--packet-size");
+        vector<string> valid_args = {"-s", "--packet-size", "-b", "--binary", "-M", "--file-max-size"};
+        vector<string> valuar_args = {"-s", "--packet-size", "-M", "--file-max-size"};
+        valids.insert(valids.end(), valid_args.begin(), valid_args.end());
+        valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
     else if (argv[1] == "merge")
     {
@@ -148,20 +179,23 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         }
         else if (argv[1] == "packeter")
         {
-
-            if (argument == "-s" || argument == "--packet-size")
+            if (argument == "-M" || argument == "--file-max-size")
+                maximum_file_size = to_uint32(value);
+            else if (argument == "-s" || argument == "--packet-size")
                 packeter_size = to_uint32(value);
+            else if (argument == "-b" || argument == "--binary")
+                binary = true;
         }
         else if (argv[1] == "merge")
         {
             if (argument == "-b" || argument == "--binary")
-                merge_bin = true;
+                binary = true;
             else if (argument == "-c" || argument == "--seperator-char")
                 merge_sepc = value[0];
             else if (argument == "-Ac" || argument == "--seperator-char-ascii")
                 merge_sepc = (char)to_uint32(value);
             else if (argument == "-M" || argument == "--file-max-size")
-                merge_maximum_file_size = to_uint32(value);
+                maximum_file_size = to_uint32(value);
         }
         else
         {
@@ -289,14 +323,14 @@ int main(char **argv, int argc)
 
     fstream f_inp;
     fstream f_out;
+    auto out_open_stat = ios::out;
+    auto inp_open_stat = ios::in;
 
     if (argv[1] == "merge")
     {
-        auto out_open_stat = ios::out;
-        auto inp_open_stat = ios::in;
         char ch;
 
-        if (merge_bin)
+        if (binary)
         {
             out_open_stat |= ios::binary;
             inp_open_stat |= ios::binary;
@@ -316,20 +350,20 @@ int main(char **argv, int argc)
                 cout << "Failed to open '" << file << "'!\n";
                 exit(1);
             }
-            else if (merge_bin)
+            else if (binary)
             {
-                char read_buffer[merge_maximum_file_size];
-                f_inp.read((char *)read_buffer, merge_maximum_file_size);
+                char read_buffer[maximum_file_size];
+                f_inp.read((char *)read_buffer, maximum_file_size);
                 if (f_inp.bad())
                 {
                     cout << "Failed to read from (binary) '" << file << "'!\n";
-                    goto merge_fail;
+                    goto file_action_fail;
                 }
                 f_out.write((char *)read_buffer, f_inp.gcount());
                 if (f_out.bad())
                 {
                     cout << "Failed to write into (binary as output) '" << output << "'!\n";
-                    goto merge_fail;
+                    goto file_action_fail;
                 }
                 f_inp.close(); // finally, close the file.
             }
@@ -344,25 +378,103 @@ int main(char **argv, int argc)
                 if (f_inp.bad())
                 {
                     cout << "Failed to read from '" << file << "'!\n";
-                    goto merge_fail;
+                    goto file_action_fail;
                 }
                 f_out << temp_content;
                 if (f_out.bad())
                 {
                     cout << "Failed to write into (as output) '" << output << "'!\n";
-                    goto merge_fail;
+                    goto file_action_fail;
                 }
                 f_inp.close();
             }
             f_out.close(); // close the output.
         }
         exit(0);
-    merge_fail:
+
+    file_action_fail:
         f_out.close();
         f_inp.close();
         exit(1);
     }
     else if (argv[1] == "packeter")
+    {
+        vector<string> output_packets;
+        vector<string> output_filenames;
+        uint32_t fidx = 0;
+
+        _packeter_.config(packeter_size);
+        if (binary)
+        {
+            fin_open_stat |= ios::binary;
+            fout_open_stat |= ios::binary;
+        }
+
+        for (string file : params)
+        {
+            f_inp.open(params[0], fin_open_stat);
+            if (!f_inp.is_open())
+            {
+                cout << "Failed to open '" << file << "'!\n";
+                f_inp.close();
+                exit(1);
+            }
+
+            if (binary)
+            {
+                char read_buffer[maximum_file_size];
+                f_inp.read((char *)read_buffer, maximum_file_size);
+                if (f_inp.bad())
+                {
+                    cout << "Failed to read from (binary) '" << file << "'!\n";
+                    f_inp.close();
+                    exit(1);
+                }
+                f_inp.close();
+                _packeter_.generate(output_packets, read_buffer);
+            }
+
+            else
+            {
+                string temp;
+                char ch;
+
+                while (f_inp.get(&ch))
+                {
+                    temp += ch;
+                }
+                if (f_inp.bad())
+                {
+                    cout << "Failed to read from '" << file << "'!\n";
+                    f_inp.close();
+                    exit(1);
+                }
+                f_inp.close();
+                _packeter_.generate(output_packets, temp);
+            }
+        }
+        output_filename_parser(output_filenames, output, output_packets.size());
+        for (uint32_t i = 0; i < output_filenames.size(); i++)
+        {
+            f_out.open(output_filenames[i], fout_open_stat);
+            if (!f_out.is_open())
+            {
+                cout << "Failed to open (binary as output) '" << output_filenames[i] << "'!\n";
+                exit(1);
+            }
+
+            f_out.write((char *)output_packets[i].data(), output_packets[i].size());
+            f_out.close();
+            if (f_out.bad())
+            {
+                cout << "Failed to write into (" << (binary ? "binary as " : "") << "output) '" << output_filenames[i] << "'!\n";
+                f_out.close();
+                exit(1);
+            }
+            f_out.close();
+        }
+    }
+    else if (argv[1] == "caster")
     {
     }
 
