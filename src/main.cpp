@@ -338,7 +338,7 @@ int main(int argc, char **argv)
     }
     else if (arg == "version")
     {
-        cout << HELP_TXT << "\n";
+        cout << VERSION << "\n";
         exit(0);
     }
     args_processing(params, output, argv, argc); // stage 1 processing.
