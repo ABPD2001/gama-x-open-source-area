@@ -4,9 +4,9 @@
 
     constexpr const char *HELP_TXT = R"(
 Basic Usage
-    gxf [VERB] [ARGUMENTS/FLAGS]...
+    gxpp [VERB] [ARGUMENTS/FLAGS]...
 
-'gxf' is the official Gama-X output formatter. It applies post-processing
+'gxpp' is the official Gama-X output formatter. It applies post-processing
 transformations to Gama-X output without modifying the processing stage.
 Supported operations include metadata injection, sectioning, output merging,
 chunking, and format conversion.
@@ -29,7 +29,7 @@ Verbs:
                 specified byte alignment.
 
                 Example:
-                    gxf snipper -A 4 ...
+                    gxpp snipper -A 4 ...
 
             [-b, --binary]
                 Treat input and output as binary data.
@@ -112,7 +112,7 @@ Verbs:
                 from the footer.
 
                 Example:
-                    gxf snipper -fc a ...
+                    gxpp snipper -fc a ...
 
             [-hc, --header-separator-char]
                 Specify the character used to separate section content
@@ -126,7 +126,7 @@ Verbs:
                 content from the footer.
 
                 Example:
-                    gxf snipper -Afc 65 ...
+                    gxpp snipper -Afc 65 ...
 
             [-Ahc, --header-separator-char-ascii]
                 Specify the ASCII byte value used to separate section
@@ -137,15 +137,15 @@ Verbs:
 
 
         Basic Usage:
-            gxf snipper [FLAGS/INPUT FILES]...
+            gxpp snipper [FLAGS/INPUT FILES]...
 
-            gxf snipper -C my_config.conf data1.txt data2.txt data3.txt \
+            gxpp snipper -C my_config.conf data1.txt data2.txt data3.txt \
                 -o output.txt
 
-            gxf snipper -b -C my_config.conf data1.bin data2.bin \
+            gxpp snipper -b -C my_config.conf data1.bin data2.bin \
                 -o output.bin
 
-            gxf snipper -B -C my_config.conf data1.bin data2.bin \
+            gxpp snipper -B -C my_config.conf data1.bin data2.bin \
                 data3.bin data4.bin -o output.bin
 
 
@@ -160,7 +160,7 @@ Verbs:
                 specifies the number of output formats.
 
                 Example:
-                    gxf caster -m 4 ...
+                    gxpp caster -m 4 ...
 
             [-b, --binary]
                 Treat the input as binary data.
@@ -209,15 +209,15 @@ Verbs:
             of values must match the specified number of output formats.
 
         Basic Usage:
-            gxf caster [FLAGS/FILE]...
+            gxpp caster [FLAGS/FILE]...
 
-            gxf caster data.bin -b -o new_data.bin
+            gxpp caster data.bin -b -o new_data.bin
 
-            gxf caster data.txt -m 3 \
+            gxpp caster data.txt -m 3 \
                 -o data1.txt,data2.txt,data3.txt \
                 -c e,a,#
 
-            gxf caster data.txt -m 2 \
+            gxpp caster data.txt -m 2 \
                 -o data1.txt,data2.txt \
                 -Ac 78,65
 
@@ -232,7 +232,7 @@ Verbs:
                 Specify the size of each packet in bytes.
 
                 Example:
-                    gxf packeter -s 4096 ...
+                    gxpp packeter -s 4096 ...
                     # 4 KiB per packet.
 
             [-o, --output]
@@ -240,25 +240,25 @@ Verbs:
                 used as the packet index placeholder.
 
                 Examples:
-                    gxf packeter ... -o packet$$$.bin
+                    gxpp packeter ... -o packet$$$.bin
                     # packet001.bin, packet002.bin, packet003.bin
 
-                    gxf packeter ... -o packet$.bin
+                    gxpp packeter ... -o packet$.bin
                     # packet1.bin, packet2.bin, packet3.bin
 
 
         Basic Usage:
-            gxf packeter [FLAGS/FILES]...
+            gxpp packeter [FLAGS/FILES]...
 
-            gxf packeter large_data.txt -s 512 \
+            gxpp packeter large_data.txt -s 512 \
                 -o my_packet$$.txt
 
-            gxf packeter large_data.bin large_data2.bin -s 1024 \
+            gxpp packeter large_data.bin large_data2.bin -s 1024 \
                 -o my_packet$$$$.bin
 
 
 V1.0.0
-<--- Gama-X Output Formatter --->
+<--- Gama-X Output Post-Processor --->
 )";
 
 #endif
