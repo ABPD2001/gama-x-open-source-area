@@ -1,70 +1,201 @@
 #ifndef HELP_HPP
 #define HELP_HPP
 
-constexpr char *HELP_TXT = R"(
+constexpr const char *HELP_TXT = R"(
 Basic Usage
-    gxf [verb] [arguments/flags]...
+    gxf [VERB] [ARGUMENTS/FLAGS]...
+
+'gxf' is the official Gama-X output formatter. It applies post-processing
+transformations to Gama-X output without modifying the processing stage.
+Supported operations include metadata injection, sectioning, output merging,
+chunking, and format conversion.
 
 Verbs:
-    snipper
-        Adds data-containing headers and footers to raw data sets. It can also inject metadata into individual inputs using the '-S' flag, while supporting sectioning through multiple inputs and configuration files.
-        Flags:
-            [-A, --alignment]:                      align each snippet (with header and footer) to a specific byte-alignment.
-            # ===> [gxf snipper -A 4 ...]
-            
-            [-b, --binary]:                         inputs and output are in binary, or in other words, work with binaries.
-            [-B, --binary-big-endian]:              inputs and output are in big-endian binary.
-            [-C, --config]:                         configuration file path, that includes header/footer format, header/footer section fields values (format of it will be explained more in further).
-            [-S, --meta-snipping]:                  act as a metadata injecter.
-            
-            [-fc, --footer-seperator-char]:         define what character should split snippet (section) content and footer.
-            # ===> [gxf snipper -fc a ...]
-            
-            [-hc, --header-seperator-char]:         define what character should split snippet (section) content and header.
-            [-p, --padding-fillter-char]:           define which character should used as alignment padding.
-            
-            [-Afc, --footer-seperator-char-ascii]:  define what byte in ascii table should split snippet (section) content and footer.
-            # ===> [gxf snipper -Afc 65 ...]
-            
-            [-Ahc, --footer-seperator-char-ascii]:  define what byte in ascii table should split snippet (section) content and header.
-            [-Ap, --padding-fillter-char-ascii]:    define which byte in ascii table should used as alignment padding.
+    help
+        Print this help text.
 
-        
+    version
+        Print the software version.
+
+    snipper
+        Add data-containing headers and footers to raw data sets. Metadata
+        injection can be performed on individual inputs using the '-S' flag.
+        Sectioning is supported through multiple inputs and configuration files.
+
+        Flags:
+            [-A, --alignment]
+                Align each snippet (including its header and footer) to the
+                specified byte alignment.
+
+                Example:
+                    gxf snipper -A 4 ...
+
+            [-b, --binary]
+                Treat input and output as binary data.
+
+            [-B, --binary-big-endian]
+                Treat input and output as big-endian binary data.
+
+            [-C, --config]
+                Specify the configuration file containing header/footer
+                formats and section field values. See the configuration
+                format documentation for details.
+
+            [-S, --meta-snipping]
+                Enable metadata injection mode.
+
+            [-fc, --footer-separator-char]
+                Specify the character used to separate section content
+                from the footer.
+
+                Example:
+                    gxf snipper -fc a ...
+
+            [-hc, --header-separator-char]
+                Specify the character used to separate section content
+                from the header.
+
+            [-p, --padding-filler-char]
+                Specify the character used as alignment padding.
+
+            [-Afc, --footer-separator-char-ascii]
+                Specify the ASCII byte value used to separate section
+                content from the footer.
+
+                Example:
+                    gxf snipper -Afc 65 ...
+
+            [-Ahc, --header-separator-char-ascii]
+                Specify the ASCII byte value used to separate section
+                content from the header.
+
+            [-Ap, --padding-filler-char-ascii]
+                Specify the ASCII byte value used as alignment padding.
+
+
         Basic Usage:
             gxf snipper [FLAGS/INPUT FILES]...
 
-            [gxf snipper -C my_config.conf data1.txt data2.txt data3.txt -o output.txt]
-            [gxf snipper -b -C my_config.conf data1.bin data2.bin -o output.bin]
-            [gxf snipper -B -C my_config.conf data1.bin data2.bin data3.bin data4.bin -o output.bin]
+            gxf snipper -C my_config.conf data1.txt data2.txt data3.txt \
+                -o output.txt
+
+            gxf snipper -b -C my_config.conf data1.bin data2.bin \
+                -o output.bin
+
+            gxf snipper -B -C my_config.conf data1.bin data2.bin \
+                data3.bin data4.bin -o output.bin
 
 
-        caster
-            Converts raw data from one format to another. Multiple output formats can be specified using the '-m' flag.
-            Flags:
-                [-m, --multi-cast]:     instead of an atomic format conversion, convert a input file to multiple output formats, takes numeric-value as number of output formats.
-                # ===> [gxf caster -m 4 ...]
+    caster
+        Convert raw data from one format to another. Multiple output formats
+        can be generated using the '-m' flag.
 
-                [-b, --binary]:                         input file is a binary data.
-                [-B, --binary-big-endian]:              input file is a big-endian binary data.
-                [-f, --format-logic]:                   input file format/logic config file destinatoin, (note: it's based on '-l' or '-f' flags of Gama-X Compiler 'gx').
-                [-c, --seperator-char]:                 it can be used istead of '-f' flag, only works when input format is text, reads input seperated within entered char.
-                [-Ac, --seperator-char-ascii]:  it      can be used istead of '-f' flag, only works when input format is text, reads input seperated within entered byte in ascii table.
-                
-                [-o, --output]:                         output file(s) destination.
-                [-tb, --target-binary]:                 output file(s) is a binary data.
-                [-tB, --target-binary-big-endian]:      output file(s) is a big-endian binary data.
-                [-tf, --target-format-logic]:           output file(s) format/logic config file destinatoin, (note: it's based on '-l' or '-f' flags of Gama-X Compiler 'gx').
-                [-tc, --target-seperator-char]:         it can be used istead of '-f' flag, only works when input format is text, writes output(s) seperated within entered char.
-                [-Atc, --target-seperator-char-ascii]:  it can be used istead of '-f' flag, only works when input format is text, writes output(s) seperated within entered byte in ascii table.
-                
-                Important: it's required to enter output-related flags multi-values that seperated with ',' (comma) if '-m, --multi-cast' flag is valued, order of all output-related flags should be same.
-                
-                Basic Usage:
-                    gxf caster [FLAGS/FILE]...
+        Flags:
+            [-m, --multi-cast]
+                Instead of performing an atomic format conversion, convert
+                an input file to multiple output formats. The argument
+                specifies the number of output formats.
 
-                    [gxf caster data.bin -b -o new_data.bin]
-                    [gxf caster data.txt -m 3 -o data1.txt,data2.txt,data3.txt -c e,a,#]
-                    [gxf caster data.txt -m 2 -o data1.txt,data2.txt -Ac 78,65]
-        packeter
+                Example:
+                    gxf caster -m 4 ...
+
+            [-b, --binary]
+                Treat the input as binary data.
+
+            [-B, --binary-big-endian]
+                Treat the input as big-endian binary data.
+
+            [-f, --format-logic]
+                Specify the input format/logic configuration file.
+                This format is based on the '-l' and '-f' options of the
+                Gama-X compiler ('gx').
+
+            [-c, --separator-char]
+                Specify the input separator character instead of using
+                '-f'. This option is available only for text input.
+
+            [-Ac, --separator-char-ascii]
+                Specify the input separator as an ASCII byte value instead
+                of using '-f'. This option is available only for text input.
+
+            [-o, --output]
+                Specify the destination file(s).
+
+            [-tb, --target-binary]
+                Write output file(s) as binary data.
+
+            [-tB, --target-binary-big-endian]
+                Write output file(s) as big-endian binary data.
+
+            [-tf, --target-format-logic]
+                Specify the output format/logic configuration file.
+                This format is based on the '-l' and '-f' options of the
+                Gama-X compiler ('gx').
+
+            [-tc, --target-separator-char]
+                Specify the output separator character instead of using
+                '-tf'. This option is available only for text output.
+
+            [-Atc, --target-separator-char-ascii]
+                Specify the output separator as an ASCII byte value instead
+                of using '-tf'. This option is available only for text output.
+
+        Multi-Cast:
+            When '-m' or '--multi-cast' is specified, all output-related
+            options must accept comma-separated values. The number and order
+            of values must match the specified number of output formats.
+
+        Basic Usage:
+            gxf caster [FLAGS/FILE]...
+
+            gxf caster data.bin -b -o new_data.bin
+
+            gxf caster data.txt -m 3 \
+                -o data1.txt,data2.txt,data3.txt \
+                -c e,a,#
+
+            gxf caster data.txt -m 2 \
+                -o data1.txt,data2.txt \
+                -Ac 78,65
+
+
+    packeter
+        Split one or more input files into sequential data packets.
+        Packets are intended for partitioning, segmentation, storage,
+        and distributed processing while preserving the original raw data.
+
+        Flags:
+            [-s, --packet-size]
+                Specify the size of each packet in bytes.
+
+                Example:
+                    gxf packeter -s 4096 ...
+                    # 4 KiB per packet.
+
+            [-o, --output]
+                Specify the output filename pattern. The '$' character is
+                used as the packet index placeholder.
+
+                Examples:
+                    gxf packeter ... -o packet$$$.bin
+                    # packet001.bin, packet002.bin, packet003.bin
+
+                    gxf packeter ... -o packet$.bin
+                    # packet1.bin, packet2.bin, packet3.bin
+
+
+        Basic Usage:
+            gxf packeter [FLAGS/FILES]...
+
+            gxf packeter large_data.txt -s 512 \
+                -o my_packet$$.txt
+
+            gxf packeter large_data.bin large_data2.bin -s 1024 \
+                -o my_packet$$$$.bin
+
+
+V1.0.0
+<--- Gama-X Output Formatter --->
 )";
+
 #endif

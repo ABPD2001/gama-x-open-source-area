@@ -5,6 +5,7 @@
 #include <core/snipper.hpp>
 #include <utils/vector.hpp>
 #include <help.hpp>
+#define VERSION "v1.0.0"
 
 using std::cout;
 using std::fstream;
@@ -321,11 +322,21 @@ int main(char **argv, int argc)
              << HELP_TXT << "\n";
         exit(1);
     }
-    else if (argv[1] != "merge" && argv[1] != "caster" && argv[1] != "snipper" && argv[1] != "packeter")
+    else if (argv[1] != "help" && argv[1] != "version" && argv[1] != "merge" && argv[1] != "caster" && argv[1] != "snipper" && argv[1] != "packeter")
     {
         cout << "Unkown verb '" << argv[1] << "'!\n"
              << HELP_TXT << "\n";
         exit(1);
+    }
+    if (argv[1] == "help")
+    {
+        cout << HELP_TXT << "\n";
+        exit(0);
+    }
+    else if (argv[1] == "version")
+    {
+        cout << HELP_TXT << "\n";
+        exit(0);
     }
     args_processing(&params, argv, argc); // stage 1 processing.
 
