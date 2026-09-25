@@ -2,18 +2,23 @@
 #define CASTER_HPP
 #include <string>
 #include <vector>
-#include <utils/string.hpp>
-#include <utils/number.hpp>
+#include <cinttypes>
+#include "../utils/string.hpp"
+#include "../utils/number.hpp"
 
 using std::stoll;
 using std::string;
 using std::to_string;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
+using std::uint8_t;
 using std::vector;
 
 struct _GX_CASTER_format_t
 {
     string format; // or binary logic.
-    string seperator;
+    char seperator;
     bool binary = false;
     bool endianness = false; // small
 };
@@ -21,7 +26,7 @@ struct _GX_CASTER_format_t
 class _GX_CASTER
 {
 private:
-    vector<long long int> snippets;
+    vector<vector<uint64_t>> snippets;
     string content;
     _GX_CASTER_format_t format;
 

@@ -89,9 +89,9 @@ double to_double(string text)
 	return neg ? -output : output;
 };
 
-logictype_t to_autoNumber(string text)
+uint64_t to_autoNumber(string text)
 {
-	return (logictype_t)stoll(text);
+	return (uint64_t)stoll(text);
 };
 
 bool isValidNumber(string text, bool decimal_accept)

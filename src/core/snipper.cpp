@@ -7,7 +7,7 @@ void _GX_SNIPPER::config(struct _GX_SNIPPER_config_t config)
 }
 string _GX_SNIPPER::snippet_output(string content)
 {
-    string output = this->head + this->config_st.header_content_seperator + this->content + (this->config_st.footer_format.length() ? this->config_st.footer_content_seperator + this->footer : "");
+    string output = this->head + this->config_st.header_content_seperator + content + (this->config_st.footer_format.length() ? this->config_st.footer_content_seperator + this->footer : "");
     if (this->config_st.alignment && output.length() % this->config_st.alignment)
     {
         for (uint32_t i = 0; i < output.length() % this->config_st.alignment; i++)
@@ -39,7 +39,7 @@ void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
         // if it was string (with null).
         {
             this->head += fields[i];
-            this->head += 0;
+            this->head += '\0';
         }
 
         else if (bfields_format[i] == "text")
@@ -50,7 +50,7 @@ void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
             if (fields[i] == "_size_")
-                this->head += toBinary(size, s, this->config_st.binary_endianness);
+                this->head += toBinary((uint64_t)size, s, this->config_st.binary_endianness);
 
             if (bfields_format[i][0] == 's')
                 this->head += toBinary(stoll(fields[i]), s, this->config_st.binary_endianness);
@@ -63,7 +63,7 @@ void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
 void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
 {
 
-    if (!this->config_st.footer_format)
+    if (this->config_st.footer_format.empty())
     {
         this->footer = "";
         return;
@@ -78,10 +78,10 @@ void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
 void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
 {
     this->footer = "";
-    if (!this->config_st.footer_format)
+    if (this->config_st.footer_format.empty())
         return;
     string buffer = "";
-    const vector<string> bfields_format = split(this->config_st.footerr_format, ',');
+    const vector<string> bfields_format = split(this->config_st.footer_format, ',');
 
     for (uint32_t i = 0; i < fields.size(); i++)
     {
@@ -89,7 +89,7 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
         // if it was string (with null).
         {
             this->footer += fields[i];
-            this->footer += 0;
+            this->footer += '\0';
         }
 
         else if (bfields_format[i] == "text")
@@ -100,9 +100,9 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
             if (fields[i] == "_size_")
-                this->footer += toBinary(size, s, this->config_st.binary_endianness);
+                this->footer += toBinary((uint64_t)size, s, this->config_st.binary_endianness);
             if (bfields_format[i] == "u64")
-                this->footer += toBinaryu64(to_uint64(fields[i]), s, this->config_st.binary_endianness);
+                this->footer += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
             else
                 this->footer += toBinary(stoll(fields[i]), s, this->config_st.binary_endianness);
         }
@@ -111,23 +111,27 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
 
 string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields)
 {
-    chrono::system_clock::time_point chrono_now = chrono::system_clock::now();
-    chrono::system_clock::duration chrono_duration = chrono_now.time_since_epoch();
-    const chrono::system_clock::duration unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono_duration).count();
+    const auto unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 
     string output = "";
     for (uint32_t i = 0; i < contents.size(); i++)
     {
-        vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", String(i)}, {"SIZE", to_string(contents[i].size())}, {"UNIX_MS", to_string(unix_ms)}};
+        vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", to_string(i)}, {"SIZE", to_string(contents[i].size())}, {"UNIX_MS", to_string(unix_ms)}};
         if (i < f_fields.size())
         {
-            f_fields.insert(f_fields.end(), default_fields.begin(), default_fields.end());
-            this->finclude(f_fields[i]);
+            for (uint32_t j = 0; j < f_fields.size(); j++)
+            {
+                f_fields[j].insert(f_fields[j].end(), default_fields.begin(), default_fields.end());
+                this->finclude(f_fields[i]);
+            }
         }
         if (i < h_fields.size())
         {
-            h_fields.insert(h_fields.end(), default_fields.begin(), default_fields.end());
-            this->hinclude(h_fields[i]);
+            for (uint32_t j = 0; j < f_fields.size(); j++)
+            {
+                h_fields[j].insert(h_fields[j].end(), default_fields.begin(), default_fields.end());
+                this->hinclude(h_fields[i]);
+            }
         }
         output += this->snippet_output(contents[i]) + this->config_st.snippet_seperator;
     }
@@ -138,11 +142,11 @@ string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> f_po
     string output = "";
     for (uint32_t i = 0; i < contents.size(); i++)
     {
-        if (i < f_fields.size())
+        if (i < f_pointers.size())
         {
             this->finclude_bin(f_pointers[i], contents.size());
         }
-        if (i < h_fields.size())
+        if (i < h_pointers.size())
             this->hinclude_bin(h_pointers[i], contents.size());
         output += this->snippet_output(contents[i]);
     }
@@ -151,9 +155,7 @@ string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> f_po
 
 string _GX_SNIPPER::txtout_single(string content, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields)
 {
-    chrono::system_clock::time_point chrono_now = chrono::system_clock::now();
-    chrono::system_clock::duration chrono_duration = chrono_now.time_since_epoch();
-    const chrono::system_clock::duration unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono_duration).count();
+    const auto unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
     vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", "0"}, {"SIZE", to_string(content.size())}, {"UNIX_MS", to_string(unix_ms)}};
 
     if (f_fields.size())
@@ -174,10 +176,10 @@ string _GX_SNIPPER::txtout_single(string content, vector<_GX_SNIPPER_field_t> f_
 string _GX_SNIPPER::binout_single(string content, vector<string> f_pointers, vector<string> h_pointers)
 {
     if (f_pointers.size())
-        this->finclude(f_pointers, content.size());
+        this->finclude_bin(f_pointers, content.size());
 
     if (h_pointers.size())
-        this->hinclude(h_pointers, content.size());
+        this->hinclude_bin(h_pointers, content.size());
 
     return this->snippet_output(content);
 }

@@ -1,8 +1,7 @@
-```cpp
 #ifndef HELP_HPP
 #define HELP_HPP
 
-    constexpr const char *HELP_TXT = R"(
+constexpr const char *HELP_TXT = R"(
 Basic Usage
     gxpp [VERB] [ARGUMENTS/FLAGS]...
 
@@ -262,4 +261,3 @@ V1.0.0
 )";
 
 #endif
-```

@@ -18,7 +18,7 @@ void _GX_CASTER::update(string content)
 
         for (uint32_t i = 0; n >= s; i++)
         {
-            vector<long long int> snipp;
+            vector<uint64_t> snipp;
             string snipp_raw = content.substr(i, s);
             for (string u : units)
             {
@@ -34,7 +34,7 @@ void _GX_CASTER::update(string content)
     else
     {
         const vector<string> lines = split(content, '\n');
-        vector<long long int> snipp;
+        vector<uint64_t> snipp;
         if (this->format.seperator)
         {
             for (string l : lines)
@@ -76,7 +76,7 @@ void _GX_CASTER::update(string content)
                         sep += l[i];
                         continue;
                     }
-                    if (sep && !a)
+                    if (sep.size() && !a)
                     {
                         const uint32_t idx = l.substr(n).find(sep);
                         snipp.push_back(stoll(l.substr(n, idx)));
@@ -104,7 +104,7 @@ string _GX_CASTER::cast_format(_GX_CASTER_format_t format)
             for (uint32_t j = 0; j < this->snippets[i].size(); j++)
             {
                 if (units[j] == "s64")
-                    output += toBinaryu64(this->snippets[i][j], format.endianness);
+                    output += toBinary((long long int)this->snippets[i][j], 8, format.endianness);
                 else
                     output += toBinary(this->snippets[i][j], (uint8_t)(to_uint32(units[j].substr(1)) / 8), format.endianness);
             }
@@ -118,7 +118,9 @@ string _GX_CASTER::cast_format(_GX_CASTER_format_t format)
             {
                 for (uint32_t j = 0; j < this->snippets[i].size(); j++)
                 {
-                    output += (!j ? format.seperator : "") + to_string(this->snippets[i][j]);
+                    if (!j)
+                        output += format.seperator;
+                    output += to_string(this->snippets[i][j]);
                 }
                 output += '\n';
             }

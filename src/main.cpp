@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include <core/caster.hpp>
-#include <core/packeter.hpp>
-#include <core/snipper.hpp>
-#include <utils/vector.hpp>
-#include <help.hpp>
+#include "./core/caster.hpp"
+#include "./core/packeter.hpp"
+#include "./core/snipper.hpp"
+#include "./utils/vector.hpp"
+#include "./help.hpp"
 #define VERSION "v1.0.0"
 
 using std::cout;
@@ -27,7 +27,7 @@ void arg_error(string argname, string reason)
     cout << "Error within [" << argname << "] argument: " << reason;
 }
 
-inline void digiter(string num, uint32_t count)
+inline string digiter(string num, uint32_t count)
 {
     string output = "";
     for (uint32_t i = 0; i < count - num.length(); i++)
@@ -40,7 +40,7 @@ inline void digiter(string num, uint32_t count)
 
 void output_filename_parser(vector<string> &output_names, string output, uint32_t counts)
 {
-    uint32_t dcounts = 0;
+    uint32_t dcounts = 0, idx = 0;
     string replace_str = "";
     for (char c : output)
     {
@@ -54,7 +54,7 @@ void output_filename_parser(vector<string> &output_names, string output, uint32_
     }
     for (uint32_t i = 0; i < counts; i++)
     {
-        output_names.push_back(output.replace(replace_str, digiter(i, dcounts)));
+        output_names.push_back(replaceAll(output, replace_str, digiter(to_string(i), dcounts)));
     }
 };
 
@@ -62,31 +62,32 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
 {
     vector<string> valids = {"-o", "--output"};
     vector<string> valuars = {"-o", "--output"};
+    string arg = argv[1];
     _GX_CASTER_format_t temp_f;
     bool multicasting = false;
 
-    if (argv[1] == "snipper")
+    if (arg == "snipper")
     {
         vector<string> valid_args = {"-C", "--config", "-hc", "--header-seperator-char", "-Ahc", "--header-seperator-char-ascii", "-fc", "--footer-seperator-char", "-Afc", "--footer-seperator-char-ascii", "-A", "--alignment", "-p", "--padding-filler-char", "-Ap", "--padding-filler-char-ascii", "-B", "--binary", "-b", "--binary-big-endian", "-c", "--snippets-seperator-char", "-Ac", "--snippets-seperator-char-ascii", "-S", "--meta-snipping"};
         vector<string> valuar_args = {"-C", "--config", "-hc", "--header-seperator-char", "-Ahc", "--header-seperator-char-ascii", "-fc", "--footer-seperator-char", "-Afc", "--footer-seperator-char-ascii", "-A", "--alignment", "-p", "--padding-filler-char", "-Ap", "--padding-filler-char-ascii", "-s", "--snippets-seperator-char", "-As", "--snippets-seperator-char-ascii"};
         valids.insert(valids.end(), valid_args.begin(), valid_args.end());
         valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
-    else if (argv[1] == "caster")
+    else if (arg == "caster")
     {
         vector<string> valid_args = {"-m", "--multi-cast", "-f", "--format-logic", "-b", "--binary", "-B", "--binary-big-endian", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii"};
         vector<string> valuar_args = {"-m", "--multi-cast", "-f", "--format-logic", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii"};
         valids.insert(valids.end(), valid_args.begin(), valid_args.end());
         valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
-    else if (argv[1] == "packeter")
+    else if (arg == "packeter")
     {
         vector<string> valid_args = {"-s", "--packet-size", "-b", "--binary"};
         vector<string> valuar_args = {"-s", "--packet-size"};
         valids.insert(valids.end(), valid_args.begin(), valid_args.end());
         valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
-    else if (argv[1] == "merge")
+    else if (arg == "merge")
     {
         vector<string> valid_args = {"-b", "--binary", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii"};
         vector<string> valuar_args = {"-c", "--seperator-char", "-Ac", "--seperator-char-ascii"};
@@ -95,13 +96,13 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
     }
     for (uint32_t i = 2; i < argc; i++)
     {
-        const string argument = argv[i];
+        const string argument = argv[i], value = (i == argc - 1 ? "" : argv[i + 1]);
+
         if (argument[0] != '-')
         {
             values.push_back(argument);
             continue;
         }
-        const string value = i == argc - 1 ? "" : argv[i + 1];
 
         if (!argument[0] == '-' && !includes<string>(valids, argument))
         {
@@ -118,9 +119,8 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             output = value;
             continue;
         }
-        if (argv[1] == "snipper")
+        if (arg == "snipper")
         {
-            const string value = argv[i + 1];
 
             if (argument == "-C" || argument == "--config")
                 config = value;
@@ -160,14 +160,14 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             else if (argument == "-A" || argument == "--alignment")
                 _snipper_conf_.alignment = to_uint32(value);
         }
-        else if (argv[1] == "packeter")
+        else if (arg == "packeter")
         {
-            else if (argument == "-s" || argument == "--packet-size")
+            if (argument == "-s" || argument == "--packet-size")
                 packeter_size = to_uint32(value);
             else if (argument == "-b" || argument == "--binary")
                 binary = true;
         }
-        else if (argv[1] == "merge")
+        else if (arg == "merge")
         {
             if (argument == "-b" || argument == "--binary")
                 binary = true;
@@ -218,26 +218,30 @@ bool parse_fields_txt(vector<vector<_GX_SNIPPER_field_t>> &ffields, vector<vecto
         else if (hf_brack == 1)
         {
             const vector<string> parts = split(l, ';');
+            vector<_GX_SNIPPER_field_t> fields;
             for (string p : parts)
             {
                 const vector<string> kv = split(p, '=');
                 if (kv.size() != 2)
                     return false;
                 _GX_SNIPPER_field_t f = {kv[0], kv[1]};
-                hfields.push_back(f);
+                fields.push_back(f);
             }
+            hfields.push_back(fields);
         }
         else if (hf_brack == 2)
         {
             const vector<string> parts = split(l, ';');
+            vector<_GX_SNIPPER_field_t> fields;
             for (string p : parts)
             {
                 const vector<string> kv = split(p, '=');
                 if (kv.size() != 2)
                     return false;
                 _GX_SNIPPER_field_t f = {kv[0], kv[1]};
-                ffields.push_back(f);
+                fields.push_back(f);
             }
+            ffields.push_back(fields);
         }
     }
 }
@@ -262,18 +266,12 @@ bool parse_fields_bin(vector<vector<string>> &ffields, vector<vector<string>> &h
         else if (hf_brack == 1)
         {
             const vector<string> parts = split(l, ',');
+            ffields.push_back(parts);
         }
         else if (hf_brack == 2)
         {
-            const vector<string> parts = split(l, ';');
-            for (string p : parts)
-            {
-                const vector<string> kv = split(p, '=');
-                if (kv.size() != 2)
-                    return false;
-                _GX_SNIPPER_field_t f = {kv[0], kv[1]};
-                ffields.push_back(f);
-            }
+            const vector<string> parts = split(l, ',');
+            ffields.push_back(parts);
         }
     }
 }
@@ -294,7 +292,7 @@ void read_formats(string &footer_format, string &header_format, string &content)
         {
             const uint32_t foot_idx = l.find("[FOOTER FORMAT]");
 
-            else if (foot_idx != string::npos)
+            if (foot_idx != string::npos)
             {
                 hf_brack = 2;
                 const string temp = content.substr(foot_idx + 15);
@@ -316,35 +314,36 @@ void read_formats(string &footer_format, string &header_format, string &content)
     }
 }
 
-int main(char **argv, int argc)
+int main(int argc, char **argv)
 {
     vector<string> params;
-    string output;
+    string output, arg;
     if (argc < 2)
     {
         cout << "Invalid usage, verb required!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
-    else if (argv[1] != "help" && argv[1] != "version" && argv[1] != "merge" && argv[1] != "caster" && argv[1] != "snipper" && argv[1] != "packeter")
+    arg = argv[1];
+    if (arg != "help" && arg != "version" && arg != "merge" && arg != "caster" && arg != "snipper" && arg != "packeter")
     {
-        cout << "Unkown verb '" << argv[1] << "'!\n"
+        cout << "Unkown verb '" << arg << "'!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
-    if (argv[1] == "help")
+    if (arg == "help")
     {
         cout << HELP_TXT << "\n";
         exit(0);
     }
-    else if (argv[1] == "version")
+    else if (arg == "version")
     {
         cout << HELP_TXT << "\n";
         exit(0);
     }
-    args_processing(&params, argv, argc); // stage 1 processing.
+    args_processing(params, output, argv, argc); // stage 1 processing.
 
-    if (argv[1] == "caster")
+    if (arg == "caster")
     {
         const vector<string> outputs = split(output, ',');
         if (outputs.size() != multi_casting)
@@ -406,21 +405,21 @@ int main(char **argv, int argc)
         }
     }
 
-    else if (argv[1] == "snipper")
+    else if (arg == "snipper")
     {
-        if (!_snipper_conf_.header_format)
+        if (_snipper_conf_.header_format.empty())
         {
             arg_error("-hf, --header-format", "it's required!");
             exit(1);
         }
-        if (_snipper_conf_.footer_binary && !_snipper_conf_.footer_format.length())
+        if (binary && _snipper_conf_.footer_format.empty())
         {
             arg_error("-ff, --footer-format", "it's required when [-fb, --footer-binary] flag!");
             exit(1);
         }
     }
 
-    else if (argv[1] == "packeter" && !packeter_size)
+    else if (arg == "packeter" && !packeter_size)
     {
         arg_error("-s, --packet-size", "should be valued as more than zero!");
         exit(1);
@@ -440,28 +439,19 @@ int main(char **argv, int argc)
 
     fstream f_inp;
     fstream f_out;
-    auto out_open_stat = ios::out;
-    auto inp_open_stat = ios::in;
-
-    if (argv[1] == "merge")
+    if (arg == "merge")
     {
         char ch;
 
-        if (binary)
-        {
-            out_open_stat |= ios::binary;
-            inp_open_stat |= ios::binary;
-        }
-
-        f_out.open(output, out_open_stat);
+        f_out.open(output, (binary ? ios::out | ios::binary : ios::out));
         if (!f_out.is_open())
         {
-            cout << "Failed to open (as output destiniation) '" << file << "'!\n";
+            cout << "Failed to open (as output destiniation) '" << output << "'!\n";
             exit(1);
         }
         for (string file : params)
         {
-            f_inp.open(file, inp_open_stat);
+            f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
                 cout << "Failed to open '" << file << "'!\n";
@@ -469,7 +459,7 @@ int main(char **argv, int argc)
             }
 
             string temp_content;
-            while (f_inp.get(&ch))
+            while (f_inp.get(ch))
             {
                 temp_content += ch;
             }
@@ -496,22 +486,17 @@ int main(char **argv, int argc)
         f_inp.close();
         exit(1);
     }
-    else if (argv[1] == "packeter")
+    else if (arg == "packeter")
     {
         vector<string> output_packets;
         vector<string> output_filenames;
         uint32_t fidx = 0;
 
         _packeter_.config(packeter_size);
-        if (binary)
-        {
-            fin_open_stat |= ios::binary;
-            fout_open_stat |= ios::binary;
-        }
 
         for (string file : params)
         {
-            f_inp.open(params[0], fin_open_stat);
+            f_inp.open(params[0], (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
                 cout << "Failed to open '" << file << "'!\n";
@@ -522,7 +507,7 @@ int main(char **argv, int argc)
             string temp;
             char ch;
 
-            while (f_inp.get(&ch))
+            while (f_inp.get(ch))
             {
                 temp += ch;
             }
@@ -538,7 +523,7 @@ int main(char **argv, int argc)
         output_filename_parser(output_filenames, output, output_packets.size());
         for (uint32_t i = 0; i < output_filenames.size(); i++)
         {
-            f_out.open(output_filenames[i], fout_open_stat);
+            f_out.open(output_filenames[i], (binary ? ios::out | ios::binary : ios::out));
             if (!f_out.is_open())
             {
                 cout << "Failed to open (binary as output) '" << output_filenames[i] << "'!\n";
@@ -556,13 +541,11 @@ int main(char **argv, int argc)
             f_out.close();
         }
     }
-    else if (argv[1] == "caster")
+    else if (arg == "caster")
     {
         _caster_.config(_caster_format_from_);
 
-        if (_caster_format_from_.binary)
-            fin_open_stat |= ios::binary;
-        f_inp.open(params[0], fin_open_stat);
+        f_inp.open(params[0], (_caster_format_from_.binary ? ios::out | ios::binary : ios::out));
         if (!f_inp.is_open())
         {
             cout << "Failed to open '" << params[0] << "'!\n";
@@ -596,7 +579,7 @@ int main(char **argv, int argc)
         }
         temp.clear();
 
-        while (f_inp.get(&ch))
+        while (f_inp.get(ch))
         {
             temp += ch;
         }
@@ -610,10 +593,7 @@ int main(char **argv, int argc)
         _caster_.update(temp);
         for (uint32_t i = 0; i < multi_casting; i++)
         {
-            fout_open_stat = ios::out;
-            if (_caster_format_to_[i].binary)
-                fout_open_stat |= ios::binary;
-            f_out.open(outputs[i], fout_open_stat);
+            f_out.open(outputs[i], (_caster_format_to_[i].binary ? ios::out | ios::binary : ios::out));
             if (!f_out.is_open())
             {
                 cout << "Failed to open (output" << (_caster_format_to_[i].binary ? " as binary" : "") << ") '" << outputs[i] << "'!\n";
@@ -631,19 +611,15 @@ int main(char **argv, int argc)
             f_out.close();
         }
     }
-    else if (argv[1] == "snipper")
+    else if (arg == "snipper")
     {
         vector<string> content;
-        string header_format, footer_format, temp, output, content;
+        string header_format, footer_format, temp, output;
         char ch;
 
         for (string file : params)
         {
-
-            fin_open_stat = ios::in;
-            if (binary)
-                fin_open_stat |= ios::binary;
-            f_inp.open(file, fin_open_stat);
+            f_inp.open(file, (binary ? ios::out | ios::binary : ios::out));
             if (!f_inp.is_open())
             {
                 cout << "Failed to open at '" << file << "'!\n";
@@ -664,7 +640,7 @@ int main(char **argv, int argc)
             content.push_back(temp);
         }
 
-        if (config)
+        if (config.length())
         {
             f_inp.open(config, ios::in);
             if (!f_inp.is_open())
@@ -686,9 +662,7 @@ int main(char **argv, int argc)
             f_inp.close();
         }
         config = temp;
-        read_formats(footer_format, header_format, config);
-        _snipper_conf_.footer_format = footer_format;
-        _snipper_conf_.header_format = header_format;
+        read_formats(_snipper_conf_.footer_format, _snipper_conf_.header_format, config);
         _snipper_.config(_snipper_conf_);
 
         if (binary)
@@ -710,9 +684,7 @@ int main(char **argv, int argc)
                 temp = _snipper_.txtout(content, ffields, hfields);
         }
 
-        if (binary)
-            fout_open_stat |= ios::bin;
-        f_out.open(output, fout_open_stat);
+        f_out.open(output, (binary ? ios::out | ios::binary : ios::out));
         if (!f_out.is_open())
         {
             cout << "Failed to open (output) '" << output << "'!\n";
