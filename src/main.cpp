@@ -5,7 +5,6 @@
 #include "./core/snipper.hpp"
 #include "./utils/vector.hpp"
 #include "./help.hpp"
-#define VERSION "v1.0.0"
 
 using std::cout;
 using std::fstream;

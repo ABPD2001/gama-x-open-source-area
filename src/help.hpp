@@ -1,8 +1,8 @@
 #ifndef HELP_HPP
 #define HELP_HPP
+#define VERSION "v1.0.0"
 
-constexpr const char *HELP_TXT = R"(
-Basic Usage
+constexpr const char *HELP_TXT = R"(Basic Usage
     gxpp [VERB] [ARGUMENTS/FLAGS]...
 
 'gxpp' is the official Gama-X output formatter. It applies post-processing
@@ -256,7 +256,7 @@ Verbs:
                 -o my_packet$$$$.bin
 
 
-V1.0.0
+v1.0.0
 <--- Gama-X Output Post-Processor --->
 )";
 
