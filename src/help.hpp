@@ -41,6 +41,63 @@ Verbs:
                 formats and section field values. See the configuration
                 format documentation for details.
 
+            Config file format's format:
+            ***
+            [HEADER FORMAT](format...)
+            [FOOTER FORMAT](format...)
+
+            [HEADER]
+            fields...
+            fields...
+            ...
+            
+            [FOOTER]
+            fields... # this is a comment.
+            fields...
+            ...
+            
+            # this is a comment.
+            ***
+
+            Config file format should be like (.txt):
+            ***
+                [HEADER FORMAT](size=<SIZE>,name=<NAME>,id=<IDX>) # <SIZE> and <IDX> are pre-defined.
+                [FOOTER FORMAT]() # leave it empty as no footer.
+
+                [HEADER]
+                NAME=my_app
+                NAME=my_app2
+
+                [FOOTER]
+                # leave it empty as none.
+            ***
+            NOTE: each tag inside of <...> will be replaced with defined fields in HEADER and FOOTER parts.
+            pre-defined tags:
+                <SIZE>:     size of snippet context.
+                <UNIX_MS>:  date time in unix (ms). 
+                <IDX>:      index of snippet. 
+
+            and (.bin):
+            ***
+                [HEADER FORMAT](string,u64,s64,u16,u16) # string -> text + null terminator at the end 
+                [FOOTER FORMAT]() # leave it empty as no footer.
+
+                [HEADER]
+                hello,432,-2,23,234 # snippet 1 header.
+                hello2,_size_,-234,3,4  # snippet 2 header.
+
+                [FOOTER]
+                # leave it empty as none.
+            ***
+            NOTE: HEADER and FOOTER fields order should be same with its defined format.
+            NOTE: '_size_' is pre-defined value that represent size of snippet context.
+
+            types for fields in binary are:
+                string: string text with null terminator.
+                text: string text without null terminator.
+                uX: unsigned number, X = bits, u64, u32, ...
+                sX: signed number, X = bits, s64, s32, ...
+
             [-S, --meta-snipping]
                 Enable metadata injection mode.
 

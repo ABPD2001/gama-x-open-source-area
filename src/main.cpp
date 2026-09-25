@@ -285,7 +285,11 @@ void read_formats(string &footer_format, string &header_format, string &content)
 
     for (string l : lines)
     {
+        l = split(l, '#')[0];
         l = trim(l);
+        if (l.empty())
+            continue;
+
         if (!footer_format.size())
         {
             const uint32_t foot_idx = l.find("[FOOTER FORMAT]");

@@ -22,6 +22,28 @@ string toBinary(uint64_t value, uint8_t mode, bool bigEndian)
 	return !bigEndian ? output : reversed;
 }
 
+string toBinary(long long int value, uint8_t mode, bool bigEndian)
+{
+	if (mode > sizeof(value))
+	{
+		mode = sizeof(value);
+	}
+
+	string output(mode, 0);
+	for (uint8_t i = 0; i < mode; ++i)
+	{
+		output[i] = static_cast<char>((value >> (i * 8)) & 0xFF);
+	}
+
+	string reversed(mode, 0);
+	for (uint32_t i = mode - 1; i < mode; i--)
+	{
+		reversed[mode - 1 - i] = output[i];
+	}
+
+	return !bigEndian ? output : reversed;
+}
+
 bool is_valid_version(string text)
 {
 	const vector<string> parts = split(text, '.');

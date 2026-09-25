@@ -36,18 +36,26 @@ void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
     for (uint32_t i = 0; i < fields.size(); i++)
     {
         if (bfields_format[i] == "string")
+        // if it was string (with null).
+        {
+            this->head += fields[i];
+            this->head += 0;
+        }
+
+        else if (bfields_format[i] == "text")
             // if it was string.
             this->head += fields[i];
 
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
-            if (fields[i] == "size")
+            if (fields[i] == "_size_")
                 this->head += toBinary(size, s, this->config_st.binary_endianness);
-            if (bfields_format[i] == "u64")
-                this->head += toBinaryu64(to_uint64(fields[i]), s, this->config_st.binary_endianness);
-            else
+
+            if (bfields_format[i][0] == 's')
                 this->head += toBinary(stoll(fields[i]), s, this->config_st.binary_endianness);
+            if (bfields_format[i][0] == 'u')
+                this->head += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
         }
     }
 }
@@ -78,12 +86,20 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
     for (uint32_t i = 0; i < fields.size(); i++)
     {
         if (bfields_format[i] == "string")
+        // if it was string (with null).
+        {
+            this->footer += fields[i];
+            this->footer += 0;
+        }
+
+        else if (bfields_format[i] == "text")
             // if it was string.
             this->footer += fields[i];
+
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1)) / 8;
-            if (fields[i] == "size")
+            if (fields[i] == "_size_")
                 this->footer += toBinary(size, s, this->config_st.binary_endianness);
             if (bfields_format[i] == "u64")
                 this->footer += toBinaryu64(to_uint64(fields[i]), s, this->config_st.binary_endianness);
