@@ -27,7 +27,7 @@ void _GX_SNIPPER::hinclude(vector<_GX_SNIPPER_field_t> fields)
     }
 }
 
-void _GX_SNIPPER::hinclude_bin(vector<void *> fields, uint32_t size)
+void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
 {
     this->head = "";
     string buffer = "";
@@ -35,22 +35,17 @@ void _GX_SNIPPER::hinclude_bin(vector<void *> fields, uint32_t size)
 
     for (uint32_t i = 0; i < fields.size(); i++)
     {
-        char *val = fields + i; // cast pointer.
         if (bfields_format[i] == "string")
-        // if it was string.
-        {
-            for (uint32_t j = 0; val[j]; j++)
-            {
-                this->head += val[j];
-            }
-        }
+            // if it was string.
+            this->head += fields[i];
+
         else if (bfields_format[i] == "size")
             this->footer += toBinary(size, 4, this->config_st.binary_endianness);
 
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1));
-            this->head += toBinary(to_uint64(val), s, this->config_st.binary_endianness);
+            this->head += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
         }
     }
 }
@@ -70,7 +65,7 @@ void _GX_SNIPPER::finclude(vector<_GX_SNIPPER_field_t> fields)
     }
 }
 
-void _GX_SNIPPER::finclude_bin(vector<void *> fields, uint32_t size)
+void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
 {
     this->footer = "";
     if (!this->config_st.footer_format)
@@ -80,14 +75,10 @@ void _GX_SNIPPER::finclude_bin(vector<void *> fields, uint32_t size)
 
     for (uint32_t i = 0; i < fields.size(); i++)
     {
-        char *val = fields + i; // cast pointer.
         if (bfields_format[i] == "string")
         // if it was string.
         {
-            for (uint32_t j = 0; val[j]; j++)
-            {
-                this->footer += val[j];
-            }
+            this->footer += fields[i];
         }
         else if (bfields_format[i] == "size")
             this->footer += toBinary(size, 4, this->config_st.binary_endianness);
@@ -95,7 +86,7 @@ void _GX_SNIPPER::finclude_bin(vector<void *> fields, uint32_t size)
         else
         {
             const uint32_t s = to_uint32(bfields_format[i].substr(1));
-            this->footer += toBinary(to_uint64(val), s, this->config_st.binary_endianness);
+            this->footer += toBinary(to_uint64(fields[i]), s, this->config_st.binary_endianness);
         }
     }
 }
@@ -124,7 +115,7 @@ string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_f
     }
     return output.substr(0, output.length() - 1);
 }
-string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<void *>> f_pointers, vector<vector<void *>> h_pointers)
+string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> f_pointers, vector<vector<string>> h_pointers)
 {
     string output = "";
     for (uint32_t i = 0; i < contents.size(); i++)
@@ -162,7 +153,7 @@ string _GX_SNIPPER::txtout_single(string content, vector<_GX_SNIPPER_field_t> f_
     return this->snippet_output(content);
 }
 
-string _GX_SNIPPER::binout_single(string content, vector<void *> f_pointers, vector<void *> h_pointers)
+string _GX_SNIPPER::binout_single(string content, vector<string> f_pointers, vector<string> h_pointers)
 {
     if (f_pointers.size())
         this->finclude(f_pointers, content.size());
