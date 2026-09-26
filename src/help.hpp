@@ -2,9 +2,7 @@
 #define HELP_HPP
 #define VERSION "v1.0.0"
 
-constexpr const char *HELP_TXT = R"(Basic Usage
-    gxpp [VERB] [ARGUMENTS/FLAGS]...
-
+constexpr const char *HELP_TXT = R"(Usage: gxpp [VERB] [ARGUMENTS/FLAGS]...
 'gxpp' is the official Gama-X output formatter. It applies post-processing
 transformations to Gama-X output without modifying the processing stage.
 Supported operations include metadata injection, sectioning, output merging,
@@ -257,7 +255,6 @@ Verbs:
 
 
 v1.0.0
-<--- Gama-X Output Post-Processor --->
-)";
+<--- Gama-X Output Post-Processor --->)";
 
 #endif

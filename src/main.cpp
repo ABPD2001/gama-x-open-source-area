@@ -96,17 +96,15 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
     for (uint32_t i = 2; i < argc; i++)
     {
         const string argument = argv[i], value = (i == argc - 1 ? "" : argv[i + 1]);
-
-        if (argument[0] != '-')
+        if (!includes<string>(valids, argument))
         {
+            if (argument[0] == '-')
+            {
+                arg_error(argument, "undefined argument!");
+                exit(1);
+            }
             values.push_back(argument);
             continue;
-        }
-
-        if (!argument[0] == '-' && !includes<string>(valids, argument))
-        {
-            arg_error(argument, "undefined argument!");
-            exit(1);
         }
         if (includes(valuars, argument) && i == argc - 1)
         {
