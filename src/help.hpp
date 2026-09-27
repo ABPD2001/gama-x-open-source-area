@@ -233,11 +233,11 @@ Verbs:
                     # 4 KiB per packet.
 
             [-o, --output]
-                Specify the output filename pattern. The '$' character is
+                Specify the output filename pattern. The '#' character is
                 used as the packet index placeholder.
 
                 Examples:
-                    gxpp packeter ... -o packet$$$.bin
+                    gxpp packeter ... -o packet###.bin
                     # packet001.bin, packet002.bin, packet003.bin
 
                     gxpp packeter ... -o packet$.bin

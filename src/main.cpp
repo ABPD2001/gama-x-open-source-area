@@ -23,7 +23,7 @@ bool binary = false, single_meta = false;
 
 void arg_error(string argname, string reason)
 {
-    cout << "Error within [" << argname << "] argument: " << reason;
+    cout << "Error within [" << argname << "] argument: " << reason << '\n';
 }
 
 inline string digiter(string num, uint32_t count)
@@ -43,12 +43,12 @@ void output_filename_parser(vector<string> &output_names, string output, uint32_
     string replace_str = "";
     for (char c : output)
     {
-        if (c == '$')
+        if (c == '#')
         {
             dcounts++;
-            replace_str += '$';
+            replace_str += '#';
         }
-        else if (dcounts && c != '$')
+        else if (dcounts && c != '#')
             break;
     }
     for (uint32_t i = 0; i < counts; i++)
@@ -96,6 +96,16 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
     for (uint32_t i = 2; i < argc; i++)
     {
         const string argument = argv[i], value = (i == argc - 1 ? "" : argv[i + 1]);
+        if (includes<string>(valuars, argument))
+        {
+            if (i == argc - 1)
+            {
+                arg_error(argument, "value missed!");
+                exit(1);
+            }
+            i++;
+        }
+
         if (!includes<string>(valids, argument))
         {
             if (argument[0] == '-')
@@ -106,11 +116,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             values.push_back(argument);
             continue;
         }
-        if (includes(valuars, argument) && i == argc - 1)
-        {
-            arg_error(argument, "value missed!");
-            exit(1);
-        }
+
         if (argument == "-o" || argument == "--output")
         {
             output = value;
@@ -493,7 +499,7 @@ int main(int argc, char **argv)
 
         for (string file : params)
         {
-            f_inp.open(params[0], (binary ? ios::in | ios::binary : ios::in));
+            f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
                 cout << "Failed to open '" << file << "'!\n";
@@ -523,7 +529,7 @@ int main(int argc, char **argv)
             f_out.open(output_filenames[i], (binary ? ios::out | ios::binary : ios::out));
             if (!f_out.is_open())
             {
-                cout << "Failed to open (binary as output) '" << output_filenames[i] << "'!\n";
+                cout << "Failed to open (" << (binary ? "binary as " : "") << "output) '" << output_filenames[i] << "'!\n";
                 exit(1);
             }
 
