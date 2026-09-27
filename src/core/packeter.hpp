@@ -6,6 +6,7 @@
 #include <cinttypes>
 
 using std::ceil;
+using std::max;
 using std::min;
 using std::string;
 using std::uint16_t;

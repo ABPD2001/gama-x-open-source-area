@@ -14,9 +14,7 @@ void _GX_PACKETER::generate(vector<string> &output_packets, string content)
     {
         const uint32_t available_n = min((uint32_t)(content.length() - i * this->packet_size), this->packet_size);
         output_packets.push_back(string(""));
-        for (uint32_t j = 0; j < available_n; j++)
-        {
-            output_packets[i] = content.substr(i * this->packet_size - 1, available_n);
-        }
+
+        output_packets[i] = content.substr(max(0, (int)(i * this->packet_size - 1)), available_n);
     }
 }
