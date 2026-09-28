@@ -224,6 +224,7 @@ bool parse_fields_txt(vector<vector<_GX_SNIPPER_field_t>> &ffields, vector<vecto
             vector<_GX_SNIPPER_field_t> fields;
             for (string p : parts)
             {
+
                 const vector<string> kv = split(p, '=');
                 if (kv.size() != 2)
                     return false;
@@ -241,6 +242,7 @@ bool parse_fields_txt(vector<vector<_GX_SNIPPER_field_t>> &ffields, vector<vecto
                 const vector<string> kv = split(p, '=');
                 if (kv.size() != 2)
                     return false;
+                cout << kv[0] << ' ' << kv[1] << "\n";
                 _GX_SNIPPER_field_t f = {kv[0], kv[1]};
                 fields.push_back(f);
             }
@@ -410,16 +412,8 @@ int main(int argc, char **argv)
 
     else if (arg == "snipper")
     {
-        if (_snipper_conf_.header_format.empty())
-        {
-            arg_error("-hf, --header-format", "it's required!");
-            exit(1);
-        }
-        if (binary && _snipper_conf_.footer_format.empty())
-        {
-            arg_error("-ff, --footer-format", "it's required when [-fb, --footer-binary] flag!");
-            exit(1);
-        }
+        if (config.empty())
+            arg_error("-C, --config", "It's required!");
     }
 
     else if (arg == "packeter" && !packeter_size)
@@ -547,7 +541,7 @@ int main(int argc, char **argv)
     {
         _caster_.config(_caster_format_from_);
 
-        f_inp.open(params[0], (_caster_format_from_.binary ? ios::out | ios::binary : ios::out));
+        f_inp.open(params[0], (_caster_format_from_.binary ? ios::in | ios::binary : ios::in));
         if (!f_inp.is_open())
         {
             cout << "Failed to open '" << params[0] << "'!\n";
@@ -616,12 +610,12 @@ int main(int argc, char **argv)
     else if (arg == "snipper")
     {
         vector<string> content;
-        string header_format, footer_format, temp, output;
+        string temp;
         char ch;
 
         for (string file : params)
         {
-            f_inp.open(file, (binary ? ios::out | ios::binary : ios::out));
+            f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
                 cout << "Failed to open at '" << file << "'!\n";

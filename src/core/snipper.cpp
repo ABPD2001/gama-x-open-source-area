@@ -7,10 +7,10 @@ void _GX_SNIPPER::config(struct _GX_SNIPPER_config_t config)
 }
 string _GX_SNIPPER::snippet_output(string content)
 {
-    string output = this->head + this->config_st.header_content_seperator + content + (this->config_st.footer_format.length() ? this->config_st.footer_content_seperator + this->footer : "");
+    string output = this->head + this->config_st.header_content_seperator + content + (this->footer.length() ? this->config_st.footer_content_seperator + this->footer : "");
     if (this->config_st.alignment && output.length() % this->config_st.alignment)
     {
-        for (uint32_t i = 0; i < output.length() % this->config_st.alignment; i++)
+        for (uint32_t i = 0; i < this->config_st.alignment - (output.length() % this->config_st.alignment); i++)
         {
             output += this->config_st.padding_filler;
         }
@@ -25,6 +25,7 @@ void _GX_SNIPPER::hinclude(vector<_GX_SNIPPER_field_t> fields)
     {
         this->head = replaceAll(this->head, string("<") + f.id + '>', f.value);
     }
+    std::cout << this->head << "\n";
 }
 
 void _GX_SNIPPER::hinclude_bin(vector<string> fields, uint32_t size)
@@ -109,7 +110,7 @@ void _GX_SNIPPER::finclude_bin(vector<string> fields, uint32_t size)
     }
 }
 
-string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields)
+string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> &f_fields, vector<vector<_GX_SNIPPER_field_t>> &h_fields)
 {
     const auto unix_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 
@@ -119,25 +120,24 @@ string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_f
         vector<_GX_SNIPPER_field_t> default_fields = {{"IDX", to_string(i)}, {"SIZE", to_string(contents[i].size())}, {"UNIX_MS", to_string(unix_ms)}};
         if (i < f_fields.size())
         {
-            for (uint32_t j = 0; j < f_fields.size(); j++)
-            {
-                f_fields[j].insert(f_fields[j].end(), default_fields.begin(), default_fields.end());
-                this->finclude(f_fields[i]);
-            }
+            f_fields[i].insert(f_fields[i].end(), default_fields.begin(), default_fields.end());
+            this->finclude(f_fields[i]);
         }
+        else
+            this->footer = "";
         if (i < h_fields.size())
         {
-            for (uint32_t j = 0; j < f_fields.size(); j++)
-            {
-                h_fields[j].insert(h_fields[j].end(), default_fields.begin(), default_fields.end());
-                this->hinclude(h_fields[i]);
-            }
+            h_fields[i].insert(h_fields[i].end(), default_fields.begin(), default_fields.end());
+            this->hinclude(h_fields[i]);
         }
+        else
+            this->head = "";
+
         output += this->snippet_output(contents[i]) + this->config_st.snippet_seperator;
     }
     return output.substr(0, output.length() - 1);
 }
-string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> f_pointers, vector<vector<string>> h_pointers)
+string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> &f_pointers, vector<vector<string>> &h_pointers)
 {
     string output = "";
     for (uint32_t i = 0; i < contents.size(); i++)

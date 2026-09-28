@@ -2,6 +2,7 @@
 #define SNIPPER_HPP
 #include <string>
 #include <vector>
+#include <iostream>
 #include <chrono>
 #include <cinttypes>
 #include "../utils/string.hpp"
@@ -47,8 +48,8 @@ public:
     _GX_SNIPPER();
     void config(struct _GX_SNIPPER_config_t config);
     string snippet_output(string content);
-    string txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> f_fields, vector<vector<_GX_SNIPPER_field_t>> h_fields);
-    string binout(vector<string> &contents, vector<vector<string>> f_fields, vector<vector<string>> h_fields);
+    string txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_field_t>> &f_fields, vector<vector<_GX_SNIPPER_field_t>> &h_fields);
+    string binout(vector<string> &contents, vector<vector<string>> &f_fields, vector<vector<string>> &h_fields);
 
     string txtout_single(string content, vector<_GX_SNIPPER_field_t> f_fields, vector<_GX_SNIPPER_field_t> h_fields);
     string binout_single(string content, vector<string> f_fields, vector<string> h_fields);
