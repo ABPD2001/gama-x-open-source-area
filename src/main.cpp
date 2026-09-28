@@ -449,7 +449,7 @@ int main(int argc, char **argv)
         f_out.open(output, (binary ? ios::out | ios::binary : ios::out));
         if (!f_out.is_open())
         {
-            cout << "Failed to open (as output destiniation) '" << output << "'!\n";
+            cout << "Failed to open (as output) '" << output << "'!\n";
             exit(1);
         }
         for (string file : params)
@@ -472,16 +472,15 @@ int main(int argc, char **argv)
                 cout << "Failed to read from '" << file << "'!\n";
                 goto file_action_fail;
             }
-            f_out << temp_content;
+            f_out.write((char *)temp_content.data(), temp_content.size());
             if (f_out.bad())
             {
                 cout << "Failed to write into (as output) '" << output << "'!\n";
                 goto file_action_fail;
             }
             f_inp.close();
-
-            f_out.close(); // close the output.
         }
+        f_out.close(); // close the output.
         exit(0);
 
     file_action_fail:
