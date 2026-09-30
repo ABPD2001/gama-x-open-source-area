@@ -283,39 +283,30 @@ bool parse_fields_bin(vector<vector<string>> &ffields, vector<vector<string>> &h
 
 void read_formats(string &footer_format, string &header_format, string &content)
 {
-    vector<string> lines = split(content, '\n');
-    uint32_t hf_brack = 0;
+    const uint32_t head_idx = content.find("[HEADER FORMAT]");
+    const uint32_t foot_idx = content.find("[FOOTER FORMAT]");
+    string temp;
 
-    for (string l : lines)
+    if (foot_idx != string::npos)
     {
-        l = split(l, '#')[0];
-        l = trim(l);
-        if (l.empty())
-            continue;
+        const string temp = content.substr(foot_idx + 15);
+        footer_format = temp.substr(1, temp.find_first_of(')') - 1);
+    }
+    else
+    {
+        arg_error("-C, --config", "invalid footer format!");
+        exit(1);
+    }
 
-        if (!footer_format.size())
-        {
-            const uint32_t foot_idx = l.find("[FOOTER FORMAT]");
-
-            if (foot_idx != string::npos)
-            {
-                hf_brack = 2;
-                const string temp = content.substr(foot_idx + 15);
-                footer_format = temp.substr(temp.find_first_of('('), temp.find_first_of(')'));
-            }
-        }
-        else if (header_format.size())
-        {
-            const uint32_t head_idx = l.find("[HEADER FORMAT]");
-
-            if (head_idx != string::npos)
-            {
-                const string temp = content.substr(head_idx + 15);
-                header_format = temp.substr(temp.find_first_of('('), temp.find_first_of(')'));
-            }
-        }
-        else
-            break;
+    if (head_idx != string::npos)
+    {
+        const string temp = content.substr(head_idx + 15);
+        header_format = temp.substr(1, temp.find_first_of(')') - 1);
+    }
+    else
+    {
+        arg_error("-C, --config", "invalid header format!");
+        exit(1);
     }
 }
 
@@ -659,7 +650,10 @@ int main(int argc, char **argv)
         }
         config = temp;
         read_formats(_snipper_conf_.footer_format, _snipper_conf_.header_format, config);
+        cout << _snipper_conf_.footer_format << " - " << _snipper_conf_.header_format << "\n";
         _snipper_.config(_snipper_conf_);
+
+        temp = "";
 
         if (binary)
         {
@@ -674,6 +668,7 @@ int main(int argc, char **argv)
         {
             vector<vector<_GX_SNIPPER_field_t>> hfields, ffields;
             parse_fields_txt(ffields, hfields, config);
+
             if (single_meta)
                 temp = _snipper_.txtout_single(content[0], ffields[0], hfields[0]);
             else

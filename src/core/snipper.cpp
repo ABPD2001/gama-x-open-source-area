@@ -135,8 +135,10 @@ string _GX_SNIPPER::txtout(vector<string> &contents, vector<vector<_GX_SNIPPER_f
 
         output += this->snippet_output(contents[i]) + this->config_st.snippet_seperator;
     }
+
     return output.substr(0, output.length() - 1);
 }
+
 string _GX_SNIPPER::binout(vector<string> &contents, vector<vector<string>> &f_pointers, vector<vector<string>> &h_pointers)
 {
     string output = "";
