@@ -6,7 +6,7 @@ uint32_t to_uint32(string text)
 
 	for (uint8_t i = 0; i < text.length(); i++)
 	{
-		output += (text[i] - 48) * pow(10, i);
+		output += (text[i] - 48) * pow(10, text.size() - i);
 	}
 
 	return output;
@@ -20,7 +20,7 @@ uint64_t to_uint64(string text)
 	{
 		if (!(text[i] - 48))
 			output *= 10;
-		output += (text[i] - 48) * pow(10, i);
+		output += (text[i] - 48) * pow(10, text.size() - i - 1);
 	}
 
 	return output;
@@ -33,7 +33,7 @@ uint64_t to_uint64(char *text)
 	{
 		if (!(text[i] - 48))
 			output *= 10;
-		output += (text[i] - 48) * pow(10, i);
+		output += (text[i] - 48) * pow(10, strlen(text) - i - 1);
 	}
 
 	return output;

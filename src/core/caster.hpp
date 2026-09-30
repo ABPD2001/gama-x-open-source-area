@@ -1,11 +1,13 @@
 #ifndef CASTER_HPP
 #define CASTER_HPP
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cinttypes>
 #include "../utils/string.hpp"
 #include "../utils/number.hpp"
 
+using std::cout;
 using std::stoll;
 using std::string;
 using std::to_string;
@@ -18,7 +20,8 @@ using std::vector;
 struct _GX_CASTER_format_t
 {
     string format; // or binary logic.
-    char seperator;
+    uint32_t fsnippcounts = 0;
+    char seperator = 0;
     bool binary = false;
     bool endianness = false; // small
 };

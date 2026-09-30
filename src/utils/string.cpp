@@ -198,6 +198,25 @@ string trim(string text)
 
 	return cpy;
 }
+string trimEnd(string text)
+{
+	signed long int end = -1;
+	static constexpr char empty_chars[8] = {'\n', '\t', '\r', ' ', '\b', '\f', '\a', '\v'};
+
+	for (int i = text.size() - 1; i != -1; i--)
+	{
+		if (end == -1 && !includes(empty_chars, 8, text[i]))
+		{
+			end = i + 1;
+			break;
+		}
+	}
+
+	if (end == -1)
+		return "";
+
+	return text.substr(0, end);
+}
 
 bool valid_name(string text)
 {

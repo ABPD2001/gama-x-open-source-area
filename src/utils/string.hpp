@@ -29,6 +29,7 @@ bool includes(const char *arr, uint8_t count, char ch);
 vector<string> split(string text, char splitter);
 string join(vector<string> arr, string glue);
 string trim(string text);
+string trimEnd(string text);
 string replaceAll(string text, string from, string to);
 string filter(string text, char from);
 string filter(string text, char *chars, uint8_t count);

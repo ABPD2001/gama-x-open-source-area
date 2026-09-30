@@ -1,6 +1,7 @@
 #ifndef NUMBER_HPP
 #define NUMBER_HPP
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <cmath>
 #include <vector>

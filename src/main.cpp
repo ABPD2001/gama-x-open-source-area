@@ -74,8 +74,8 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
     }
     else if (arg == "caster")
     {
-        vector<string> valid_args = {"-m", "--multi-cast", "-f", "--format-logic", "-b", "--binary", "-B", "--binary-big-endian", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii"};
-        vector<string> valuar_args = {"-m", "--multi-cast", "-f", "--format-logic", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii"};
+        vector<string> valid_args = {"-m", "--multi-cast", "-f", "--format-logic", "-b", "--binary", "-B", "--binary-big-endian", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii", "-sn", "--snippet-items-number"};
+        vector<string> valuar_args = {"-m", "--multi-cast", "-f", "--format-logic", "-c", "--seperator-char", "-Ac", "--seperator-char-ascii", "-Ac", "--seperator-char-ascii", "-tf", "--target-format-logic", "-tb", "--target-binary", "-tB", "--target-binary-big-endian", "-tc", "--target-seperator-char", "-Atc", "--target-seperator-char-ascii", "-sn", "--snippet-items-number"};
         valids.insert(valids.end(), valid_args.begin(), valid_args.end());
         valuars.insert(valuars.end(), valuar_args.begin(), valuar_args.end());
     }
@@ -196,6 +196,8 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
                 _caster_format_from_.seperator = value[0];
             else if (argument == "-Ac" || argument == "--seperator-char-ascii")
                 _caster_format_from_.seperator = (char)to_uint32(value);
+            else if (argument == "-sn" || argument == "--snippet-items-number")
+                _caster_format_from_.fsnippcounts = to_uint32(value);
         }
     }
 }
@@ -350,8 +352,15 @@ int main(int argc, char **argv)
         _caster_format_to_ = new _GX_CASTER_format_t[multi_casting];
         for (uint32_t i = 2; i < argc; i++)
         {
+            const vector<string> valid_valuars = {"-tf", "-tc", "-tAc", "-tb", "-tB", "--target-format-logic", "--target-seperator-char", "--target-binary", "--target-big-endian-binary"};
             const string argument = argv[i];
-            const vector<string> values = split(argv[i + 1], ',');
+            if (i == argc - 1 && includes<string>(valid_valuars, argv[i]))
+            {
+                arg_error(argument, "value missed!");
+                exit(1);
+            }
+
+            const vector<string> values = (i == argc - 1 ? vector<string>() : split(argv[i + 1], ','));
 
             if (argument == "-tf" || argument == "--target-format-logic")
                 for (uint32_t j = 0; j < values.size(); j++)
@@ -530,6 +539,8 @@ int main(int argc, char **argv)
     }
     else if (arg == "caster")
     {
+        string temp;
+        char ch;
         _caster_.config(_caster_format_from_);
 
         f_inp.open(params[0], (_caster_format_from_.binary ? ios::in | ios::binary : ios::in));
@@ -539,9 +550,22 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        while (f_inp.get(ch))
+        {
+            temp += ch;
+        }
+        if (f_inp.bad())
+        {
+            cout << "Failed to read from '" << params[0] << "'!\n";
+            f_inp.close();
+            exit(1);
+        }
+
+        _caster_.update(temp);
+        f_inp.close();
+        temp.clear();
+
         const vector<string> outputs = split(output, ',');
-        string temp;
-        char ch;
 
         for (uint32_t i = 0; i < outputs.size(); i++)
         {
@@ -564,20 +588,9 @@ int main(int argc, char **argv)
             f_inp.close();
             _caster_format_to_[i].format = temp;
         }
-        temp.clear();
 
-        while (f_inp.get(ch))
-        {
-            temp += ch;
-        }
-        if (f_inp.bad())
-        {
-            cout << "Failed to read from '" << params[0] << "'!\n";
-            f_inp.close();
-            exit(1);
-        }
+        temp.clear(); // just in case.
 
-        _caster_.update(temp);
         for (uint32_t i = 0; i < multi_casting; i++)
         {
             f_out.open(outputs[i], (_caster_format_to_[i].binary ? ios::out | ios::binary : ios::out));
@@ -588,6 +601,7 @@ int main(int argc, char **argv)
                 exit(1);
             }
             const string output_str = _caster_.cast_format(_caster_format_to_[i]);
+
             f_out.write((char *)output_str.data(), output_str.size());
             if (f_out.bad())
             {

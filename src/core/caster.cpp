@@ -55,35 +55,28 @@ void _GX_CASTER::update(string content)
             bool a = false;
             for (string l : lines)
             {
+                if (trim(l).empty())
+                    continue;
+
                 sep = "";
                 n = 0;
                 a = false;
-                for (uint32_t i = 0; i < l.length(); i++)
+                for (uint32_t i = 0; i < l.length() && n < this->format.fsnippcounts; i++)
                 {
+                    a = l[i] == '.' || (l[i] - 48 <= 9 && l[i] - 48 >= 0);
 
-                    if (l[i] == '>')
+                    if (!a && sep.size())
                     {
-                        a = true;
-                        continue;
-                    }
-                    if (l[i] == '<')
-                    {
-                        a = false;
-                        continue;
-                    }
-                    if (a)
-                    {
-                        sep += l[i];
-                        continue;
-                    }
-                    if (sep.size() && !a)
-                    {
-                        const uint32_t idx = l.substr(n).find(sep);
-                        snipp.push_back(stoll(l.substr(n, idx)));
-                        n += idx + sep.length();
+                        snipp.push_back(to_uint64(sep));
+                        n++;
                         sep = "";
                     }
+
+                    if (a)
+                        sep += l[i];
                 }
+                if (sep.size())
+                    snipp.push_back(to_uint64(sep));
                 this->snippets.push_back(snipp);
                 snipp.clear();
             }
@@ -94,7 +87,6 @@ void _GX_CASTER::update(string content)
 string _GX_CASTER::cast_format(_GX_CASTER_format_t format)
 {
     string output = "";
-
     if (format.binary)
     {
         vector<string> units = split(format.format, ',');
@@ -130,10 +122,10 @@ string _GX_CASTER::cast_format(_GX_CASTER_format_t format)
             string l;
             for (uint32_t i = 0; i < this->snippets.size(); i++)
             {
-                l = this->format.format;
+                l = trimEnd(format.format);
                 for (uint32_t j = 0; j < this->snippets[i].size(); j++)
                 {
-                    replaceAll(l, "<" + to_string(j) + ">", to_string(this->snippets[i][j]));
+                    l = replaceAll(l, "<" + to_string(j + 1) + ">", to_string(this->snippets[i][j]));
                 }
                 output += l + '\n';
             }
