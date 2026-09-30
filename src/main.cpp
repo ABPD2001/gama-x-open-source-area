@@ -625,6 +625,7 @@ int main(int argc, char **argv)
             }
             f_inp.close();
             content.push_back(temp);
+            temp = "";
         }
 
         if (config.length())
@@ -650,10 +651,9 @@ int main(int argc, char **argv)
         }
         config = temp;
         read_formats(_snipper_conf_.footer_format, _snipper_conf_.header_format, config);
-        cout << _snipper_conf_.footer_format << " - " << _snipper_conf_.header_format << "\n";
         _snipper_.config(_snipper_conf_);
 
-        temp = "";
+        temp = ""; // just in case.
 
         if (binary)
         {
