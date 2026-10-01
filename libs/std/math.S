@@ -2,9 +2,9 @@
 @ Abolfazl Pouretemadi [10-1-2026]
 @ R0-R4 Registers are required as ABI.
 
-.replace PI #3.141592653589
-.replace TAU #6.283185307179
-.replace E #2.718281828459
+.replace PI #3.141592653
+.replace TAU #6.283185307
+.replace E #2.718281828
 
 .define logb dest(reg),x(val),base(value)
 push r0
