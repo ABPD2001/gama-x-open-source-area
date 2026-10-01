@@ -10,7 +10,7 @@ chunking, and format conversion.
 
 Verbs:
     help
-        Print this help text.
+        Print this text.
 
     version
         Print the software version.
