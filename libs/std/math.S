@@ -147,25 +147,6 @@ log $dest,$val,r0,AND
 pull r0
 .enddef
 
-.define clz dest(reg),ref(val),x(val)
-push r0
-push r1
-push r2
-push r3
-push r4
-mov r0,#1
-mov r1,#0
-mov r3,$ref
-mov r4,#0
-call _std_clz_loop
-mov $dest,r3
-pull r4
-pull r3
-pull r2
-pull r1
-pull r0
-.enddef
-
 @ a(sin,cos,tan) instructions.
 
 .define asin dest(reg),x(val)
@@ -196,11 +177,3 @@ _std_factorial_loop:
     decr r0
     cmp r0,#0
     jmp.EQ _std_factorial_loop
-
-_std_clz_loop:
-    logi r2,r3,r0,AND
-    cmp r2,#0 
-    incr.GE r3
-    shif r0,#1,LEFT
-    cmp r4,#64
-    jmp.LT _std_clz_loop
