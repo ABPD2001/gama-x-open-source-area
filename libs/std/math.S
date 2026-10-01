@@ -1,10 +1,10 @@
 @ Math instructions of Gama-X Open-Source Standard Library.
 @ Abolfazl Pouretemadi [10-1-2026]
-@ R0,R1 Registers are required as ABI.
+@ R0-R4 Registers are required as ABI.
 
-.replace PI #3.141592653589793
-.replace TAU #6.283185307179586
-.replace E #2.718281828459045
+.replace PI #3.141592653589
+.replace TAU #6.283185307179
+.replace E #2.718281828459
 
 .define logb dest(reg),x(val),base(value)
 push r0
@@ -62,20 +62,17 @@ pull r0
     pull r1
     pull r0
 .enddef
-_std_factorial_loop:
-    mul r1,r1,r0
-    decr r0
-    cmp r0,#0
-    jmp.EQ _std_factorial_loop
 
 .define deg2rad dest(reg),x(val)
 cmp $_float_mode_,#1
+mov.NE $dest,#0
 Fmul.EQ $dest,$dest,PI
 Fdiv.EQ $dest,$dest,#180
 .enddef
 
 .define rad2deg dest(reg),x(val)
 cmp $_float_mode_,#1
+mov.NE $dest,#0
 Fmul $dest,$dest,#180
 Fdiv $dest,$dest,PI
 .enddef
@@ -87,16 +84,33 @@ cmp $x,$y
 mov.GE $dest,$x
 mov.LS $dest,$y
 .enddef
+.define fmax dest(reg),x(val),y(val)
+cmp $_float_mode_,#1
+mov.NE $dest,#0
+Fcmp.EQ $x,$y
+Fmov.FGE $dest,$x
+Fmov.FLS $dest,$y
+.enddef
 
 .define min dest(reg),x(val),y(val)
 cmp $x,$y
 mov.GE $dest,$y
 mov.LS $dest,$x
 .enddef
+.define fmin dest(reg),x(val),y(val)
+cmp $_float_mode_,#1
+mov.NE $dest,#0
+Fcmp.EQ $x,$y
+Fmov.FGE $dest,$y
+Fmov.FLS $dest,$x
+.enddef
 
 .define dim dest(reg),x(val),y(val)
-sub $dest,$x,$y
-abs $dest,$dest
+cmp $_float_mode_,#1
+sub.NE $dest,$x,$y
+abs.NE $dest,$dest
+Fsub.EQ $dest,$x,$y
+Fabs.EQ $dest,$dest
 .enddef
 
 .define clamp dest(reg),x(val),min(val),max(val)
@@ -104,6 +118,14 @@ cmp $x,$min
 mov.LS $dest,$min
 cmp $x,$max
 mov.GE $dest,$max
+.enddef
+.define fclamp dest(reg),x(val),min(val),max(val)
+cmp $_float_mode_,#1
+mov.NE $dest,#0
+Fcmp.EQ $x,$min
+Fmov.FLS $dest,$min
+Fcmp $x,$max
+Fmov.FGE $dest,$max
 .enddef
 
 @ Bits operation instructions.
@@ -144,14 +166,6 @@ pull r1
 pull r0
 .enddef
 
-_std_clz_loop:
-    logi r2,r3,r0,AND
-    cmp r2,#0 
-    incr.GE r3
-    shif r0,#1,LEFT
-    cmp r4,#64
-    jmp.LT _std_clz_loop
-
 @ a(sin,cos,tan) instructions.
 
 .define asin dest(reg),x(val)
@@ -174,3 +188,19 @@ Fpow.EQ $dest,#-1
 
 .module
 .break
+
+@ Label Bodies.
+
+_std_factorial_loop:
+    mul r1,r1,r0
+    decr r0
+    cmp r0,#0
+    jmp.EQ _std_factorial_loop
+
+_std_clz_loop:
+    logi r2,r3,r0,AND
+    cmp r2,#0 
+    incr.GE r3
+    shif r0,#1,LEFT
+    cmp r4,#64
+    jmp.LT _std_clz_loop
