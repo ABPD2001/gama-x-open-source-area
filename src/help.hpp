@@ -159,16 +159,21 @@ Verbs:
                 Example:
                     gxpp caster -m 4 ...
 
+                    
             [-b, --binary]
-                Treat the input as binary data.
-
+                    Treat the input as binary data.
+                    
             [-B, --binary-big-endian]
-                Treat the input as big-endian binary data.
-
+                    Treat the input as big-endian binary data.
+                    
+            [-sn, --snippet-items-number]
+                        Number of items that should be in each snippet (it's same for input and output).
+            
             [-f, --format-logic]
                 Specify the input format/logic configuration file.
-                The format specification is based on the '-l' and '-f'
-                options of the Gama-X compiler ('gx').
+                The format specification is based on the '-l' options of the Gama-X compiler ('gx').
+
+                Note: it's functional only for binaries.
 
             [-c, --separator-char]
                 Specify the input separator character instead of using
