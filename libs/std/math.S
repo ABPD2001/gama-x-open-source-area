@@ -45,6 +45,11 @@ mov.GE $dest,$y
 mov.LS $dest,$x
 .enddef
 
+.define dim dest(reg),x(val),y(val)
+sub $dest,$x,$y
+abs $dest,$dest
+.enddef
+
 .define sbit dest(reg),value(val),nth(val)
 push r0
 mov r0,#1
