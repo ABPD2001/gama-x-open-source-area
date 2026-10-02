@@ -43,7 +43,3 @@ Fmov.EQ $dest,#0
 
 .module
 .break
-
-_smooth_act_:
-    decr r0
-    incr r1
