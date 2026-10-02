@@ -31,12 +31,5 @@ mov.NE $dest,#0
 Fmov.EQ $dest,#0
 .enddef
 
-.define to_float dest(reg),from(reg)
-mvrf $from,$dest
-.enddef
-.define to_greg dest(reg),from(reg)
-mvfr $from,$dest
-.enddef
-
 .module
 .break
