@@ -39,6 +39,7 @@ struct _GX_limit_t
 
 struct _GX_marco_t
 {
+    string filename;
     string from;
     string to;
 };
@@ -57,8 +58,15 @@ struct _GX_define_argument_t
     string type;
 };
 
+struct _GX_mainpoint_t
+{
+    string filename;
+    string name;
+};
+
 struct _GX_define_t
 {
+    string filename;
     string text;
     vector<_GX_define_argument_t> arguments;
     string name;
