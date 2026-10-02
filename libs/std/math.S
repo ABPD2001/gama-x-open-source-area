@@ -118,6 +118,7 @@ cmp $x,$min
 mov.LS $dest,$min
 cmp $x,$max
 mov.GE $dest,$max
+mov.EQ $dest,$x
 .enddef
 .define fclamp dest(reg),x(val),min(val),max(val)
 cmp $_float_mode_,#1
@@ -126,6 +127,7 @@ Fcmp.EQ $x,$min
 Fmov.FLS $dest,$min
 Fcmp $x,$max
 Fmov.FGE $dest,$max
+Fmov.FEQ $dest,$x
 .enddef
 
 @ Bits operation instructions.
@@ -145,26 +147,6 @@ shif r0,r0,$nth,LEFT
 log r0,r0,#0,NOT
 log $dest,$val,r0,AND
 pull r0
-.enddef
-
-@ a(sin,cos,tan) instructions.
-
-.define asin dest(reg),x(val)
-sin $dest,$x
-cmp $_float_mode_,#1
-Fpow.EQ $dest,#-1
-.enddef
-
-.define atan dest(reg),x(val)
-tan $dest,$x
-cmp $_float_mode_,#1
-Fpow.EQ $dest,#-1
-.enddef
-
-.define acos dest(reg),x(val)
-cos $dest,$x
-cmp $_float_mode_,#1
-Fpow.EQ $dest,#-1
 .enddef
 
 .module
