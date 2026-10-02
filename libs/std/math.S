@@ -138,6 +138,16 @@ mul $dest,$dest,r0
 pull r0
 .enddef
 
+.define flerp dest(reg),x(val),y(val),t(val)
+cmp $_float_mode_,#1
+mov.NE $dest,#0
+Fpush.EQ f0
+Fadd.EQ $dest,$x,$t
+Fsub.EQ f0,$y,$x
+Fmul.EQ $dest,$dest,f0
+Fpull.EQ f0
+.enddef
+
 @ Bits operation instructions.
 
 .define sbit dest(reg),value(val),nth(val)
