@@ -130,24 +130,6 @@ Fmov.FGE $dest,$max
 Fmov.FEQ $dest,$x
 .enddef
 
-.define maprange dest(reg),x(val),min1(val),max1(val),min2(val),max2(val)
-cmp $_float_mode_,#1
-mov.NE $dest,#0
-Fpush.EQ f0
-Fpush.EQ f1
-Fpush.EQ f2
-Fsub.EQ f0,$val,$min1
-Fsub.EQ f1,$max1,$min1
-Fdiv.EQ f2,f0,f1
-Fsub.EQ f0,f0,$min2
-Fmul.EQ f0,f0,#100
-Fsub.EQ f1,$max2,$min2 
-Fdiv.EQ f0,f0,f1
-Fmov.EQ $dest,f0
-Fpull.EQ f2
-Fpull.EQ f1
-Fpull.EQ f0
-.enddef
 
 @ Bits operation instructions.
 
@@ -178,3 +160,25 @@ _std_factorial_loop:
     decr r0
     cmp r0,#1
     jmp.GT _std_factorial_loop
+
+    
+_std_maprange: @ result would be saved in r0, R0: value, R1: min1, R2: max1, R3: min2, R4: max2
+    Fpush f0
+    Fpush f1
+
+    sub r0,r0,r1
+    sub r1,r2,r1
+    mvrf r0,f0
+    mvrf r1,f1
+    Fdiv f0,f0,f1
+    mvrf r3,f1
+    Fsub f0,f0,f1
+    Fmul f0,f0,#100
+    sub r0,r4,r3
+    mvrf r0,f1
+    Fdiv f0,f0,f1
+    Fflr f0,f0
+    mvfr f0,r0
+
+    Fpull f1
+    Fpull f0
