@@ -33,7 +33,7 @@ public:
     // infos.
 
     vector<_GX_register_t> registers();
-    vector<_GX_file_t> module_files();
+    vector<string> module_files();
     _GX_label_t mainpoint_label();
 };
 
@@ -53,6 +53,16 @@ inline uint32_t counts(vector<_GX_limit_t> vec, _GX_limit_t element)
     for (uint32_t i = 0; i < vec.size(); i++)
     {
         if (element.special_register_name == vec[i].special_register_name)
+            output++;
+    }
+    return output;
+}
+inline uint32_t counts(vector<_GX_register_t> vec, string element)
+{
+    uint32_t output = 0;
+    for (uint32_t i = 0; i < vec.size(); i++)
+    {
+        if (element == vec[i].name)
             output++;
     }
     return output;

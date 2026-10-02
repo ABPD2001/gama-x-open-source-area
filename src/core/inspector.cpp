@@ -217,3 +217,83 @@ vector<_GX_limit_t> _GX_INSPECTOR_::protection_limits_conflicts()
     }
     return output;
 }
+
+vector<_GX_register_t> _GX_INSPECTOR_::registers()
+{
+    vector<_GX_register_t> regs;
+
+    for (_GX_file_t f : this->files)
+    {
+        const vector<string> lines = split(f.content, '\n');
+        for (string l : lines)
+        {
+            l = trim(l);
+            const vector<string> parts = split(l, ' ');
+            const vector<string> commas = split(parts[1], ',');
+
+            if (parts[0][0] == 'F')
+            {
+                if (counts(reg, parts[1]) > 1)
+                    continue;
+                else
+                    regs.push_back({parts[1], "float"});
+            }
+            else if (parts[0] == "mvfr")
+            {
+                if (!counts(reg, commas[0]))
+                    regs.push_back({commas[1], "float"});
+                if (!counts(reg, commas[1]))
+                    regs.push_back({commas[1], "numeric"});
+            }
+            else if (parts[0] == "mvrf")
+            {
+                if (!counts(reg, commas[1]))
+                    regs.push_back({commas[1], "float"});
+                if (!counts(reg, commas[0]))
+                    regs.push_back({commas[0], "numeric"});
+            }
+            else
+            {
+                if (counts(reg, parts[1]) > 1)
+                    continue;
+                else
+                    regs.push_back({parts[1], "numeric"});
+            }
+        }
+    }
+
+    return regs;
+}
+
+vector<string> _GX_INSPECTOR_::module_files()
+{
+    vector<string> output;
+    for (_GX_file_t f : this->files)
+    {
+        const vector<string> lines = split(f, '\n');
+        for (string l : lines)
+        {
+            if (trim(l) == ".module")
+            {
+                output..push_back(f.name);
+                break;
+            }
+        }
+    }
+
+    return output;
+}
+
+_GX_label_t _GX_INSPECTOR_::mainpoint_label()
+{
+    _GX_label_t output;
+    if (!this->mainpoints.size())
+        return output;
+    for (_GX_label_t lbl : this->total_labels)
+    {
+
+        if (lbl.name == this->mainpoints[0])
+            return lbl;
+    }
+    return output;
+}
