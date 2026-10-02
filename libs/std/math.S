@@ -1,6 +1,6 @@
 @ Math instructions of Gama-X Open-Source Standard Library.
 @ Abolfazl Pouretemadi [10-1-2026]
-@ R0-R4 Registers are required as ABI.
+@ R0-R4 General-Registers and f0-f2 Float-Registers are required as ABI.
 
 .replace PI #3.141592653
 .replace TAU #6.283185307
@@ -73,8 +73,8 @@ Fdiv.EQ $dest,$dest,#180
 .define rad2deg dest(reg),x(val)
 cmp $_float_mode_,#1
 mov.NE $dest,#0
-Fmul $dest,$dest,#180
-Fdiv $dest,$dest,PI
+Fmul.EQ $dest,$dest,#180
+Fdiv.EQ $dest,$dest,PI
 .enddef
 
 @ Comparison instructions.
@@ -130,6 +130,25 @@ Fmov.FGE $dest,$max
 Fmov.FEQ $dest,$x
 .enddef
 
+.define maprange dest(reg),x(val),min1(val),max1(val),min2(val),max2(val)
+cmp $_float_mode_,#1
+mov.NE $dest,#0
+Fpush.EQ f0
+Fpush.EQ f1
+Fpush.EQ f2
+Fsub.EQ f0,$val,$min1
+Fsub.EQ f1,$max1,$min1
+Fdiv.EQ f2,f0,f1
+Fsub.EQ f0,f0,$min2
+Fmul.EQ f0,f0,#100
+Fsub.EQ f1,$max2,$min2 
+Fdiv.EQ f0,f0,f1
+Fmov.EQ $dest,f0
+Fpull.EQ f2
+Fpull.EQ f1
+Fpull.EQ f0
+.enddef
+
 @ Bits operation instructions.
 
 .define sbit dest(reg),value(val),nth(val)
@@ -157,5 +176,5 @@ pull r0
 _std_factorial_loop:
     mul r1,r1,r0
     decr r0
-    cmp r0,#0
-    jmp.EQ _std_factorial_loop
+    cmp r0,#1
+    jmp.GT _std_factorial_loop
