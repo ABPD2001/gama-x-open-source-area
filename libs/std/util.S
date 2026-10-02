@@ -8,16 +8,6 @@ Fmov.EQ $x,$y
 Fpull.EQ $y
 .enddef
 
-.define smothSwap x(reg),val(reg)
-cmp $_float_mode_,#0
-cmp.EQ $x,#0
-Fcmp.NE $x,#0
-decr.GT $x
-incr.GT $y
-Fdecr.FGT $x
-Fincr.FGT $y
-.enddef
-
 .define signRevert x(reg)
 abs.LS $x,$x
 mul.GT $x,$x,#-1
@@ -39,6 +29,13 @@ Flogi.EQ $dest,$dest,#0,NOT
 cmp $_float_mode_,#1
 mov.NE $dest,#0
 Fmov.EQ $dest,#0
+.enddef
+
+.define to_float dest(reg),from(reg)
+mvrf $from,$dest
+.enddef
+.define to_greg dest(reg),from(reg)
+mvfr $from,$dest
 .enddef
 
 .module

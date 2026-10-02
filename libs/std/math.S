@@ -1,10 +1,11 @@
 @ Math instructions of Gama-X Open-Source Standard Library.
 @ Abolfazl Pouretemadi [10-1-2026]
-@ R0-R4 General-Registers and f0-f2 Float-Registers are required as ABI.
+@ R0-R4 General-Registers and f0,f1 Float-Registers are required as ABI.
 
 .replace PI #3.141592653
 .replace TAU #6.283185307
 .replace E #2.718281828
+.replace HALF_PI #1.570796326
 
 .define logb dest(reg),x(val),base(value)
 push r0
