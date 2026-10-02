@@ -130,6 +130,13 @@ Fmov.FGE $dest,$max
 Fmov.FEQ $dest,$x
 .enddef
 
+.define lerp dest(reg),x(val),y(val),t(val)
+push r0
+add $dest,$x,$t
+sub r0,$y,$x
+mul $dest,$dest,r0
+pull r0
+.enddef
 
 @ Bits operation instructions.
 
