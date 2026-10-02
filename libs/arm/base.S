@@ -2,38 +2,57 @@
 cmp $val,#0
 call.EQ $lbl
 .enddef
-
 .define cbnz label(lbl),val(val)
 cmp $val,#0
 call.NE $label
 .enddef
 
-.define clz dest(reg),ref(val),x(val)
+.define b label(lbl)
+jmp $label
+.enddef
+.define bl label(lbl)
+jmp $label
+.enddef
+
+.define and dest(reg),x(val),y(val)
+logi $dest,$x,$y,AND
+.enddef
+.define orr dest(reg),x(val),y(val)
+logi $dest,$x,$y,ORR
+.enddef
+.define mvn dest(reg),x(val)
+logi $dest,$x,#0,NOT
+.enddef
+.define eor dest(reg),x(val),y(val)
+logi $dest,$x,$y,XOR
+.enddef
+.define bic dest(reg),x(val),y(val)
 push r0
-push r1
-push r2
-push r3
-push r4
-mov r0,#1
-mov r1,#0
-mov r3,$ref
-mov r4,#0
-call _std_clz_loop
-mov $dest,r3
-pull r4
-pull r3
-pull r2
-pull r1
+logi r0,$y,#0,NOT
+logi $dest,$x,r0,AND
 pull r0
 .enddef
 
+.define lsl dest(reg),val(val),amount(val)
+shif $dest,$val,$amount,LEFT
+.enddef
+.define lsr dest(reg),val(val),amount(val)
+shif $dest,$val,$amount,RIGHT
+.enddef
+.define asl dest(reg),val(val),amount(val)
+push r0
+shif $dest,$val,$amount,LEFT
+sub r0,$dest,#1
+logi $dest,$dest,$val,ORR
+pull r0
+.enddef
+.define asr dest(reg),val(val),amount(val)
+push r0
+shif $dest,$val,$amount,RIGHT
+add r0,$dest,#1
+logi $dest,$dest,$val,ORR
+.enddef
+
+
 .module
 .break
-
-_std_clz_loop:
-    logi r2,r3,r0,AND
-    cmp r2,#0 
-    incr.GE r3
-    shif r0,#1,LEFT
-    cmp r4,#64
-    jmp.LT _std_clz_loop
