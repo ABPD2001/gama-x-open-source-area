@@ -298,7 +298,7 @@ _GX_label_t _GX_INSPECTOR_::mainpoint_label()
     return output;
 }
 
-vector<string> _GX_INSPECTOR_::_circular_includes(uint32_t idx)
+vector<string> _GX_INSPECTOR_::circular_includes(uint32_t idx)
 {
     vector<string> trace;
     for (; idx < this->attachments.size(); idx++)
@@ -319,15 +319,4 @@ vector<string> _GX_INSPECTOR_::_circular_includes(uint32_t idx)
         }
     }
     return trace;
-}
-
-vector<vector<string>> _GX_INSPECTOR_::circular_includes()
-{
-    vector<vector<string>> outputs;
-    for (uint32_t i = 0; i < this->attachments; i++)
-    {
-        if (this->attachments[i].type == "include")
-        {
-        }
-    }
 }

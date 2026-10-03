@@ -8,8 +8,6 @@
 class _GX_INSPECTOR_
 {
 private:
-    vector<string> _circular_includes(string filename);
-
 public:
     vector<_GX_file_t> files;
     vector<_GX_label_t> total_labels;
@@ -31,7 +29,7 @@ public:
     vector<_GX_label_t> label_conflicts();
     vector<_GX_linter_ignored_t> linter_ignored_lines();
     vector<_GX_limit_t> protection_limits_conflicts();
-    vector<vector<string>> circular_includes();
+    vector<string> circular_includes(uint32_t idx = 0);
 
     // infos.
 
