@@ -320,3 +320,14 @@ vector<string> _GX_INSPECTOR_::circular_includes(uint32_t idx)
     }
     return trace;
 }
+
+vector<_GX_marco_t> _GX_INSPECTOR_::macro_conflicts()
+{
+    vector<_GX_marco_t> conflicts;
+    for (_GX_marco_t m : this->marcos)
+    {
+        if (counts(conflicts, m.from) > 1)
+            conflicts.push_back(m);
+    }
+    return conflicts;
+}

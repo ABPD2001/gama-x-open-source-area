@@ -30,6 +30,7 @@ public:
     vector<_GX_linter_ignored_t> linter_ignored_lines();
     vector<_GX_limit_t> protection_limits_conflicts();
     vector<string> circular_includes(uint32_t idx = 0);
+    vector<_GX_marco_t> macro_conflicts();
 
     // infos.
 
@@ -64,6 +65,16 @@ inline uint32_t counts(vector<_GX_register_t> vec, string element)
     for (uint32_t i = 0; i < vec.size(); i++)
     {
         if (element == vec[i].name)
+            output++;
+    }
+    return output;
+}
+inline uint32_t counts(vector<_GX_marco_t> vec, string element)
+{
+    uint32_t output = 0;
+    for (uint32_t i = 0; i < vec.size(); i++)
+    {
+        if (element == vec[i].from)
             output++;
     }
     return output;
