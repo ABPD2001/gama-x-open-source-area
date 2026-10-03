@@ -5,6 +5,9 @@ constexpr char HELP_TXT[] = R"(Usage: gxinsp [FILES...] [FLAGS...]
 Gama-X Program Inspector, analyzes a program and determines its structure from the perspectives of execution, dependencies on other files, and more. It can also detect conflicts within the program. 
 
 Flags:
+    [-h, --help]:                                   Print this text.
+    [-V, --version]:                                Print version.
+
     [-T, --trace-file]:                             Use linker trace as input files.
     [-r, --registers]:                              List registers that are used inside of program.
     [-l, --labels]:                                 List defined labels.
@@ -17,9 +20,12 @@ Flags:
     [-P, --defined-protection-limits-conflicts]:    List defined protection limits conflicts of program ('.limit' pre-processors). 
     [-a, --attachments]:                            List attachments of program, that means, external inputs, included files and imported libraries.
     [-I, --linter-ignored-lines]:                   List lines that are gonna ignored by linter because of linter-bypassing mechanisem ('$' sign at end of line).
-    [-C, --circular-inclusions]:                    Check for circular inclusion inside program (circular like: file1 -> file2 -> file1).
+    [-c, --circular-inclusions]:                    Check for circular inclusion inside program (circular like: file1 -> file2 -> file1).
     [-m, --mainpoint]:                              Check for mainpoint of program.
     [-M, --mainpoint-conflicts]:                    Check for mainpoint conflicts by label-name or multi mainpoint definition.
+
+    [-A, --list-all]:                               List all listable things.
+    [-C, --list-all-conflicts]:                     List all conflicted things.
 
 Note: linker trace is generatable by Gama-X Compiler (gx) within -T flag.
 Note: passing directory as file means all children of that directory.
