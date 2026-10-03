@@ -297,3 +297,37 @@ _GX_label_t _GX_INSPECTOR_::mainpoint_label()
     }
     return output;
 }
+
+vector<string> _GX_INSPECTOR_::_circular_includes(uint32_t idx)
+{
+    vector<string> trace;
+    for (; idx < this->attachments.size(); idx++)
+    {
+        if (this->attachments[idx].type == "includes")
+        {
+            trace.push_back(this->attachments[idx].callername);
+            for (uint32_t i = idx; i < this->attachments.size(); i++)
+            {
+                if (includes(trace, this->attachments[idx].callername))
+                    break;
+                if (this->attachments[idx].callername == this->attachments[i].filename)
+                {
+                    idx = i;
+                    trace.push_back(this->attachments[idx].filename);
+                }
+            }
+        }
+    }
+    return trace;
+}
+
+vector<vector<string>> _GX_INSPECTOR_::circular_includes()
+{
+    vector<vector<string>> outputs;
+    for (uint32_t i = 0; i < this->attachments; i++)
+    {
+        if (this->attachments[i].type == "include")
+        {
+        }
+    }
+}
