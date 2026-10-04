@@ -146,14 +146,18 @@ vector<_GX_label_t> _GX_INSPECTOR_::mainpoint_conflicts()
         {
             for (_GX_mainpoint_t mp : this->mainpoints)
             {
+                bool found = false;
                 for (_GX_label_t lbl : this->total_labels)
                 {
                     if (lbl.name == mp.name)
                     {
                         output.push_back(lbl);
+                        found = true;
                         break;
                     }
                 }
+                if (!found)
+                    output.push_back((_GX_label_t){mp.filename, "", mp.name, 0});
             }
         }
         else
@@ -182,11 +186,17 @@ uint32_t _GX_INSPECTOR_::mainpoint_verified()
 
 vector<_GX_label_t> _GX_INSPECTOR_::label_conflicts()
 {
-    vector<_GX_label_t> output;
+    vector<vector<_GX_label_t>> output;
+
     for (_GX_label_t lbl : this->total_labels)
     {
-        if (counts(this->total_labels, lbl) > 1)
-            output.push_back(lbl);
+        vector<_GX_label_t> temp;
+        for (uint32_t i = 0; i < this->total_labels.size(); i++)
+        {
+            if (this->total_labels[i].name == lbl.name)
+                temp.push_back(this->total_labels[i]);
+        }
+        output.push_back(temp);
     }
     return output;
 }
@@ -207,14 +217,20 @@ vector<_GX_linter_ignored_t> _GX_INSPECTOR_::linter_ignored_lines()
     return output;
 }
 
-vector<_GX_limit_t> _GX_INSPECTOR_::protection_limits_conflicts()
+vector<vector<_GX_limit_t>> _GX_INSPECTOR_::protection_limits_conflicts()
 {
-    vector<_GX_limit_t> output;
-    for (_GX_limit_t lim : this->protection_limits)
+    vector<vector<_GX_limit_t>> output;
+    for (_GX_limit_t lim : this->total_labels)
     {
-        if (counts(this->protection_limits, lim) > 1)
-            output.push_back(lbl);
+        vector<_GX_limit_t> temp;
+        for (uint32_t i = 0; i < this->protection_limits.size(); i++)
+        {
+            if (this->protection_limits[i].special_register_name == lim.special_register_name)
+                temp.push_back(this->protection_limits[i]);
+        }
+        output.push_back(temp);
     }
+
     return output;
 }
 
@@ -323,11 +339,33 @@ vector<string> _GX_INSPECTOR_::circular_includes(uint32_t idx)
 
 vector<_GX_marco_t> _GX_INSPECTOR_::macro_conflicts()
 {
-    vector<_GX_marco_t> conflicts;
-    for (_GX_marco_t m : this->marcos)
+    vector<vector<_GX_marco_t>> output;
+
+    for (_GX_marco_t macro : this->marcos)
     {
-        if (counts(conflicts, m.from) > 1)
-            conflicts.push_back(m);
+        vector<_GX_marco_t> temp;
+        for (uint32_t i = 0; i < this->macros.size(); i++)
+        {
+            if (this->macros[i].from == macro.from)
+                temp.push_back(this->macros[i]);
+        }
+        output.push_back(temp);
     }
-    return conflicts;
+    return output;
+}
+
+vector<vector<_GX_marco_t>> _GX_INSPECTOR_::macro_instruction_conflicts()
+{
+    vector<vector<_GX_define_t>> output;
+    for (_GX_define_t def : this->total_labels)
+    {
+        vector<_GX_define_t> temp;
+        for (uint32_t i = 0; i < this->total_labels.size(); i++)
+        {
+            if (this->marco_instructions[i].name == def.name)
+                temp.push_back(this->marco_instructions[i]);
+        }
+        output.push_back(temp);
+    }
+    return output;
 }

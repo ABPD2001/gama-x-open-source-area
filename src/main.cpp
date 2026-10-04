@@ -131,6 +131,154 @@ int main(int argc, char *argv[])
 
     vector<_GX_file_t> files;
     read_files(files, filenames);
+    _GX_INSPECTOR_ _inspector_(files);
+    _inspector_.analyze();
+    if (macro)
+    {
+        cout << "<=== Macros ===>\n";
+        for (_GX_marco_t m : _inspector_.marcos)
+        {
+            cout << '[' << m.filename << "] " << m.from << " -> " << m.to << "\n";
+        }
+        cout << "\nNote: Conflicts have not been processed in this section.\n";
+    }
+    if (macrosC)
+    {
+        cout << "<=== Macros (Conflicts) ===>\n";
+        const vector<vector<_GX_marco_t>> conflicts = _inspector_.macro_conflicts();
+        for (uint32_t i = 0; i < conflicts.size(); i++)
+        {
+            cout << "-- " << v[0].from << " --\n";
+            for (uint32_t j = 0; j < conflicts[i].size(); j++)
+            {
+                cout << '[' << conflicts[i][j].filename << "] -> " << conflicts[i][j].to << "\n";
+            }
+        }
+    }
+    if (registers)
+    {
+        cout << "<=== Registers ===>\n";
+        for (_GX_register_t r : _inspector_.registers())
+        {
+            cout << r.name << " (" << r.type << ")\n";
+        }
+    }
+    if (labels)
+    {
+        cout << "<=== Labels ===>\n";
+        for (_GX_label_t l : _inspector_.total_labels)
+        {
+            cout << '[' << l.filename << "] " << l.name << " at line " << l.line_idx + 1 << "\n";
+        }
+        cout << "\nNote: Conflicts have not been processed in this section.\n";
+    }
+    if (labelsC)
+    {
+        cout << "<=== Labels (Conflicts) ===>\n";
+        vector<vector<_GX_label_t>> conflicts = _inspector_.label_conflicts();
+        for (uint32_t i = 0; i < conflicts.size(); i++)
+        {
+            cout << "-- " << conflicts[i][0].name << " --\n";
+            for (uint32_t j = 0; j < conflicts[i].size(); j++)
+            {
+                cout << '[' << conflicts[i][j].filename << "] at line " << conflicts[i][j].line_idx << "\n";
+            }
+        }
+    }
+    if (definitions)
+    {
+        cout << "<=== Definitions (Marco-Instructions) ===>\n";
+        for (_GX_define_t d : _inspector_.marco_instructions)
+        {
+            cout << '[' << d.filename << "] " << d.name << ' ';
+            for (_GX_define_argument_t a : d.arguments)
+            {
+                cout << a.name << '(' << a.type << ")";
+                if (a.value)
+                    cout << " = " << a.value << "\n";
+            }
+        }
+        cout << "\nNote: Conflicts have not been processed in this section.\n";
+    }
+    if (definitionsC)
+    {
+        vector<vector<_GX_define_t>> defs = _inspector_.macro_instruction_conflicts();
+        for (uint32_t i = 0; i < defs.size(); i++)
+        {
+            cout << "-- " << defs[i][0].name << " --\n";
+            for (_GX_define_t d : defs)
+            {
+                cout << '[' << d.filename << "] " << d.name << ' ';
+                for (_GX_define_argument_t a : d.arguments)
+                {
+                    cout << a.name << '(' << a.type << ")";
+                    if (a.value)
+                        cout << " = " << a.value << "\n";
+                }
+            }
+        }
+    }
+    if (attach)
+    {
+        cout << "<=== Attachments ===>\n";
+        for (_GX_attachment_t a : _inspector_.attachments)
+        {
+            cout << '[' << a.callername << "] " << a.filename << " (";
+            if (a.type == "argular")
+                cout << "external-input, argument-based";
+            else if (a.type == "extern")
+                cout << "external-input, text-based";
+            else if (a.type == "include")
+                cout << "file inclusion";
+            else if (a.type == "import")
+                cout << "library importation";
+            cout << ")\n";
+        }
+    }
+    if (mainpoint)
+    {
+        cout << "<=== Mainpoint ===>\n";
+        const _GX_mainpoint_t mp = _inspector_.mainpoints[_inspector_.mainpoints.size() - 1];
+        if (!mp.size())
+            cout << "Mainpoint not declared!\n";
+        else
+        {
+            cout << "Mainpoint (Final) declared in [" << mp.filename << "] as '" << mp.name << "'.\n";
+            _GX_label_t mainpoint_lbl = {"", "", "", 0};
+            for (_GX_label_t lbl : _inspector_.total_labels)
+            {
+                if (lbl.name == mp.name)
+                {
+                    mainpoint_lbl = lbl;
+                    break;
+                }
+            }
+            if (mainpoint_lbl.filename.empty())
+                cout << "Mainpoint not found!\n";
+            else
+            {
+                cout << "Mainpoint (Final) defined in [" << mainpoint.<< "] at line " << mainpoint_lbl.line_idx;
+                cout << "\n\nNote: Conflicts have not been processed in this section.\n";
+            }
+        }
+    }
+    if (mainpointC)
+    {
+        cout << "<=== Mainpoint (Conflicts) ===>\n";
+        vector<_GX_label_t> conflicts = _inspector_.mainpoint_conflicts();
+        const _GX_mainpoint_t mp = _inspector_.mainpoints[_inspector_.mainpoints.size() - 1];
+        if (!mp.size())
+            cout << "Mainpoint not declared!\n";
+        else
+        {
+            cout << "Mainpoint (Final) declared in [" << mp.filename << "] as '" << mp.name << "'.\n";
+            for (_GX_mainpoint_t m : conflicts)
+            {
+                cout << "A conflict found in [" << m.filename << "] that defined as '" << m.name << "'.\n";
+            }
+            if (!conflicts.size())
+                cout << "No conflicts, fine.\n";
+        }
 
-    return 0;
-}
+        return 0;
+    }
