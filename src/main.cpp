@@ -279,6 +279,34 @@ int main(int argc, char *argv[])
             if (!conflicts.size())
                 cout << "No conflicts, fine.\n";
         }
-
-        return 0;
     }
+    if (linter_ign)
+    {
+        cout << "<=== Linter bypassed lines ===>\n";
+        vector<_GX_linter_ignored_t> ignored_lines = _inspector_.linter_ignored_lines;
+        for (uint32_t i = 0; i < ignored_lines.size(); i++)
+        {
+            cout << "[" << ignored_lines[i].filename << "]: line " << ignored_lines[i].line_idx << " ignored.\n";
+        }
+        cout << "\nWarning: linter bypassing would be dangerous often times, should be used carefully.\n";
+    }
+    if (circular_inclusion)
+    {
+        cout << "<=== Circular Inclusion Check ===>\n";
+        vector<vector<string>> circular = _inspector_.circular_includes();
+        for (uint32_t i = 0; i < circular.size(); i++)
+        {
+            for (uint32_t j = 0; j < circular[i].size(); j++)
+            {
+                if (j)
+                    cout << " -> ";
+                cout << circular[i][j];
+            }
+            cout << "\n";
+        }
+        if (!circular.size())
+            cout << "No circular inclusion, fine.\n";
+    }
+
+    return 0;
+}
