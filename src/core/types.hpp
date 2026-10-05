@@ -19,6 +19,7 @@ struct _GX_label_t
 
 struct _GX_register_t
 {
+    string filename;
     string name;
     string type;
 };

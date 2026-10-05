@@ -167,15 +167,10 @@ int main(int argc, char *argv[])
     if (registers)
     {
         cout << "<=== Registers ===>\n";
+
         for (_GX_register_t r : _inspector_.registers())
         {
-            if (r.type == "numeric")
-                cout << r.name << " (numeric)\n";
-        }
-        for (_GX_register_t r : _inspector_.registers())
-        {
-            if (r.type == "float")
-                cout << r.name << " (float)\n";
+            cout << '[' << r.filename << "] " << r.name << " (" << r.type << ")\n";
         }
     }
     if (labels)

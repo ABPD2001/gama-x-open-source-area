@@ -259,16 +259,16 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
             if (parts[0] == "mvfr")
             {
                 if (!includes(reg_names, commas[0]))
-                    regs.push_back({commas[1], "float"});
+                    regs.push_back({f.name, commas[1], "float"});
                 if (!includes(reg_names, commas[1]))
-                    regs.push_back({commas[1], "numeric"});
+                    regs.push_back({f.name, commas[1], "numeric"});
             }
             else if (parts[0] == "mvrf")
             {
                 if (!includes(reg_names, commas[1]))
-                    regs.push_back({commas[1], "float"});
+                    regs.push_back({f.name, commas[1], "float"});
                 if (!includes(reg_names, commas[0]))
-                    regs.push_back({commas[0], "numeric"});
+                    regs.push_back({f.name, commas[0], "numeric"});
             }
             else
             {
@@ -279,13 +279,13 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
                             continue;
                         if (!includes(reg_names, commas[i]))
                         {
-                            regs.push_back({commas[i], parts[0][0] == 'F' ? "float" : "numeric"});
+                            regs.push_back({f.name, commas[i], parts[0][0] == 'F' ? "float" : "numeric"});
                             reg_names.push_back(commas[i]);
                         }
                     }
                 else if (!includes(reg_names, parts[1]) && parts[1][0] != '#' && parts[1][0] != '"')
                 {
-                    regs.push_back({parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
+                    regs.push_back({f.name, parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
                     reg_names.push_back(parts[1]);
                 }
             }
