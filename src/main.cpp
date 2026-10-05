@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         const vector<vector<_GX_marco_t>> conflicts = _inspector_.macro_conflicts();
         for (uint32_t i = 0; i < conflicts.size(); i++)
         {
-            cout << "-- " << conflicts[i][0].from << " --\n";
+            cout << "##  " << conflicts[i][0].from << "  ##\n";
             for (uint32_t j = 0; j < conflicts[i].size(); j++)
             {
                 cout << '[' << conflicts[i][j].filename << "] -> " << conflicts[i][j].to << "\n";
