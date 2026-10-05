@@ -58,7 +58,6 @@ inline vector<string> split(string text, char splitter)
 
 uint32_t to_uint32(string text);
 uint64_t to_uint64(string text);
-logictype_t to_autoNumber(string text);
 
 int to_int32(string text);
 

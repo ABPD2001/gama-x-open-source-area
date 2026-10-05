@@ -18,7 +18,7 @@ void _GX_INSPECTOR_::analyze()
         for (uint32_t i = 0; i < lines.size(); i++)
         {
             lines[i] = split(lines[i], '@')[0];
-            lines[i] = trim(l);
+            lines[i] = trim(lines[i]);
             if (lines[i].size())
                 continue;
 
@@ -34,7 +34,7 @@ void _GX_INSPECTOR_::analyze()
                 }
                 else if (space_parts[0] == "replace")
                 {
-                    this->marcos.push_back({space_parts[0], space_parts[1], f.name});
+                    this->macros.push_back({space_parts[0], space_parts[1], f.name});
                     continue;
                 }
                 else if (space_parts[0] == "define")
@@ -157,7 +157,7 @@ vector<_GX_label_t> _GX_INSPECTOR_::mainpoint_conflicts()
                     }
                 }
                 if (!found)
-                    output.push_back((_GX_label_t){mp.filename, "", mp.name, 0});
+                    output.push_back({mp.filename, "", mp.name, 0});
             }
         }
         else
@@ -179,12 +179,12 @@ uint32_t _GX_INSPECTOR_::mainpoint_verified()
 {
     if (this->mainpoint_conflicts().size())
         return 1;
-    if (!this->mainpoint.size())
+    if (!this->mainpoints.size())
         return 2;
     return 0;
 }
 
-vector<_GX_label_t> _GX_INSPECTOR_::label_conflicts()
+vector<vector<_GX_label_t>> _GX_INSPECTOR_::label_conflicts()
 {
     vector<vector<_GX_label_t>> output;
 
@@ -207,11 +207,11 @@ vector<_GX_linter_ignored_t> _GX_INSPECTOR_::linter_ignored_lines()
     for (_GX_file_t f : this->files)
     {
         vector<string> lines = split(f.content, '\n');
-        for (uintmax_t i = 0; i < lines; i++)
+        for (uintmax_t i = 0; i < lines.size(); i++)
         {
             lines[i] = trim(lines[i]);
             if (lines[i][lines[i].length() - 1] == '$')
-                output.push((_GX_linter_ignored_t){f.name, i});
+                output.push_back({f.name, i + 1});
         }
     }
     return output;
@@ -220,7 +220,7 @@ vector<_GX_linter_ignored_t> _GX_INSPECTOR_::linter_ignored_lines()
 vector<vector<_GX_limit_t>> _GX_INSPECTOR_::protection_limits_conflicts()
 {
     vector<vector<_GX_limit_t>> output;
-    for (_GX_limit_t lim : this->total_labels)
+    for (_GX_limit_t lim : this->protection_limits)
     {
         vector<_GX_limit_t> temp;
         for (uint32_t i = 0; i < this->protection_limits.size(); i++)
@@ -237,6 +237,7 @@ vector<vector<_GX_limit_t>> _GX_INSPECTOR_::protection_limits_conflicts()
 vector<_GX_register_t> _GX_INSPECTOR_::registers()
 {
     vector<_GX_register_t> regs;
+    vector<string> reg_names;
 
     for (_GX_file_t f : this->files)
     {
@@ -247,33 +248,28 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
             const vector<string> parts = split(l, ' ');
             const vector<string> commas = split(parts[1], ',');
 
-            if (parts[0][0] == 'F')
+            if (parts.size() < 2)
+                continue;
+            if (parts[0] == "mvfr")
             {
-                if (counts(reg, parts[1]) > 1)
-                    continue;
-                else
-                    regs.push_back({parts[1], "float"});
-            }
-            else if (parts[0] == "mvfr")
-            {
-                if (!counts(reg, commas[0]))
+                if (!includes(reg_names, commas[0]))
                     regs.push_back({commas[1], "float"});
-                if (!counts(reg, commas[1]))
+                if (!includes(reg_names, commas[1]))
                     regs.push_back({commas[1], "numeric"});
             }
             else if (parts[0] == "mvrf")
             {
-                if (!counts(reg, commas[1]))
+                if (!includes(reg_names, commas[1]))
                     regs.push_back({commas[1], "float"});
-                if (!counts(reg, commas[0]))
+                if (!includes(reg_names, commas[0]))
                     regs.push_back({commas[0], "numeric"});
             }
+            else if (includes(reg_names, parts[1]))
+                continue;
             else
             {
-                if (counts(reg, parts[1]) > 1)
-                    continue;
-                else
-                    regs.push_back({parts[1], "numeric"});
+                reg_names.push_back(parts[1]);
+                regs.push_back({parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
             }
         }
     }
@@ -286,12 +282,12 @@ vector<string> _GX_INSPECTOR_::module_files()
     vector<string> output;
     for (_GX_file_t f : this->files)
     {
-        const vector<string> lines = split(f, '\n');
+        const vector<string> lines = split(f.content, '\n');
         for (string l : lines)
         {
             if (trim(l) == ".module")
             {
-                output..push_back(f.name);
+                output.push_back(f.name);
                 break;
             }
         }
@@ -308,7 +304,7 @@ _GX_label_t _GX_INSPECTOR_::mainpoint_label()
     for (_GX_label_t lbl : this->total_labels)
     {
 
-        if (lbl.name == this->mainpoints[0])
+        if (lbl.name == this->mainpoints[0].name)
             return lbl;
     }
     return output;
@@ -337,11 +333,11 @@ vector<string> _GX_INSPECTOR_::circular_includes(uint32_t idx)
     return trace;
 }
 
-vector<_GX_marco_t> _GX_INSPECTOR_::macro_conflicts()
+vector<vector<_GX_marco_t>> _GX_INSPECTOR_::macro_conflicts()
 {
     vector<vector<_GX_marco_t>> output;
 
-    for (_GX_marco_t macro : this->marcos)
+    for (_GX_marco_t macro : this->macros)
     {
         vector<_GX_marco_t> temp;
         for (uint32_t i = 0; i < this->macros.size(); i++)
@@ -354,10 +350,10 @@ vector<_GX_marco_t> _GX_INSPECTOR_::macro_conflicts()
     return output;
 }
 
-vector<vector<_GX_marco_t>> _GX_INSPECTOR_::macro_instruction_conflicts()
+vector<vector<_GX_define_t>> _GX_INSPECTOR_::macro_instruction_conflicts()
 {
     vector<vector<_GX_define_t>> output;
-    for (_GX_define_t def : this->total_labels)
+    for (_GX_define_t def : this->marco_instructions)
     {
         vector<_GX_define_t> temp;
         for (uint32_t i = 0; i < this->total_labels.size(); i++)

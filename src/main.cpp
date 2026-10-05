@@ -27,9 +27,9 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
 
             for (const auto &entry : fs::directory_iterator(path))
             {
-                const string filename = entry.path().filename();
+                const string filename = entry.path().filename().string();
                 if (filename.substr(filename.length() - 3) == ".s" || filename.substr(filename.length() - 3) == ".S")
-                    childs.push_back(entry.path().string());
+                    childs.push_back(fs::absolute(entry.path()).string());
             }
             read_files(files, childs);
         }
@@ -42,7 +42,7 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
                 if (!stream.is_open())
                 {
                     cout << "Failed to open '" << path << "'!\n";
-                    return 1;
+                    exit(1);
                 }
                 while (stream.get(ch))
                 {
@@ -52,7 +52,7 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
                 {
                     cout << "Failed to read '" << path << "'!\n";
                     stream.close();
-                    return 1;
+                    exit(1);
                 }
                 stream.close();
                 files.push_back({temp, path.string()});
@@ -70,13 +70,13 @@ int main(int argc, char *argv[])
     const string cflags[] = {"-L", "--labels-conflicts", "-M", "--macros-conflicts", "-D", "--defined-instructions-conflicts", "-P", "--defined-protections-limit-conflicts", "-M", "--mainpoint-conflicts"};
     string trace;
     bool marcos = false, registers = false, macro = false, macrosC = false, definitions = false, definitionsC = false, attach = false, mainpoint = false, mainpointC = false, linter_ign = false, labels = false, labelsC = false, plimits = false, plimitsC = false, circular_inclusion = false;
-    const bool &bool_flags[] = {registers, labels, macro, definitions, plimits, attach, linter_ign, circular_inclusion, mainpoint};
-    const bool &bool_cflags[] = {
-        labelsC,
-        macrosC,
-        definitionsC,
-        plimitsC,
-        mainpointC,
+    bool *const bool_flags[] = {&registers, &labels, &macro, &definitions, &plimits, &attach, &linter_ign, &circular_inclusion, &mainpoint};
+    bool *const bool_cflags[] = {
+        &labelsC,
+        &macrosC,
+        &definitionsC,
+        &plimitsC,
+        &mainpointC,
     };
 
     for (uint32_t i = 0; i < argc; i++)
@@ -97,12 +97,12 @@ int main(int argc, char *argv[])
         else if (arg == "-A" || arg == "--list-all")
             for (uint32_t i = 0; i < 18; i++)
             {
-                flags[i] = true;
+                *(bool_flags[i]) = true;
             }
         else if (arg == "-C" || arg == "--list-all-conflicts")
             for (uint32_t i = 0; i < 10; i++)
             {
-                cflags[i] = true;
+                *(bool_cflags[i]) = true;
             }
 
         if (arg == "-T" || arg == "--trace-file")
@@ -116,12 +116,18 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        const int fidx = find_arr<string, 18>(flags, arg);
-        const int cidx = find_arr<string, 10>(cflags, arg);
+        int fidx = find_arr<const string, 18>(flags, arg);
+        int cidx = find_arr<const string, 10>(cflags, arg);
         if (fidx != -1)
-            bool_flags[floor(fidx / 2)] = true;
+        {
+            fidx = floor(fidx / 2);
+            *(bool_flags[fidx]) = true;
+        }
         else if (cidx != -1)
-            bool_cflags[floor(cidx / 2)] = true;
+        {
+            cidx = floor(cidx / 2);
+            *(bool_cflags[cidx]) = true;
+        }
         else
         {
             cout << "Error within [" << arg << "] argument: invalid argument!\n";
@@ -136,7 +142,7 @@ int main(int argc, char *argv[])
     if (macro)
     {
         cout << "<=== Macros ===>\n";
-        for (_GX_marco_t m : _inspector_.marcos)
+        for (_GX_marco_t m : _inspector_.macros)
         {
             cout << '[' << m.filename << "] " << m.from << " -> " << m.to << "\n";
         }
@@ -148,7 +154,7 @@ int main(int argc, char *argv[])
         const vector<vector<_GX_marco_t>> conflicts = _inspector_.macro_conflicts();
         for (uint32_t i = 0; i < conflicts.size(); i++)
         {
-            cout << "-- " << v[0].from << " --\n";
+            cout << "-- " << conflicts[i][0].from << " --\n";
             for (uint32_t j = 0; j < conflicts[i].size(); j++)
             {
                 cout << '[' << conflicts[i][j].filename << "] -> " << conflicts[i][j].to << "\n";
@@ -194,7 +200,7 @@ int main(int argc, char *argv[])
             for (_GX_define_argument_t a : d.arguments)
             {
                 cout << a.name << '(' << a.type << ")";
-                if (a.value)
+                if (a.value.size())
                     cout << " = " << a.value << "\n";
             }
         }
@@ -206,14 +212,15 @@ int main(int argc, char *argv[])
         for (uint32_t i = 0; i < defs.size(); i++)
         {
             cout << "-- " << defs[i][0].name << " --\n";
-            for (_GX_define_t d : defs)
+            for (uint32_t j = 0; j < defs[i].size(); j++)
             {
-                cout << '[' << d.filename << "] " << d.name << ' ';
-                for (_GX_define_argument_t a : d.arguments)
+                cout << '[' << defs[i][j].filename << "] " << defs[i][j].name << ' ';
+                for (_GX_define_argument_t a : defs[i][j].arguments)
                 {
                     cout << a.name << '(' << a.type << ")";
-                    if (a.value)
-                        cout << " = " << a.value << "\n";
+                    if (a.value.size())
+                        cout << " = " << a.value;
+                    cout << "\n";
                 }
             }
         }
@@ -239,7 +246,7 @@ int main(int argc, char *argv[])
     {
         cout << "<=== Mainpoint ===>\n";
         const _GX_mainpoint_t mp = _inspector_.mainpoints[_inspector_.mainpoints.size() - 1];
-        if (!mp.size())
+        if (!mp.name.size())
             cout << "Mainpoint not declared!\n";
         else
         {
@@ -257,7 +264,7 @@ int main(int argc, char *argv[])
                 cout << "Mainpoint not found!\n";
             else
             {
-                cout << "Mainpoint (Final) defined in [" << mainpoint.<< "] at line " << mainpoint_lbl.line_idx;
+                cout << "Mainpoint (Final) defined in [" << mainpoint_lbl.filename << "] at line " << mainpoint_lbl.line_idx;
                 cout << "\n\nNote: Conflicts have not been processed in this section.\n";
             }
         }
@@ -267,14 +274,19 @@ int main(int argc, char *argv[])
         cout << "<=== Mainpoint (Conflicts) ===>\n";
         vector<_GX_label_t> conflicts = _inspector_.mainpoint_conflicts();
         const _GX_mainpoint_t mp = _inspector_.mainpoints[_inspector_.mainpoints.size() - 1];
-        if (!mp.size())
+        if (!mp.name.size())
             cout << "Mainpoint not declared!\n";
         else
         {
             cout << "Mainpoint (Final) declared in [" << mp.filename << "] as '" << mp.name << "'.\n";
-            for (_GX_mainpoint_t m : conflicts)
+            for (_GX_label_t m : conflicts)
             {
-                cout << "A conflict found in [" << m.filename << "] that defined as '" << m.name << "'.\n";
+                cout << "A conflict found in [" << m.filename << "] that defined as '" << m.name << "': ";
+                if (m.filename.empty())
+                    cout << "mainpoint declared again.";
+                else
+                    cout << "label-related conflict.";
+                cout << "\n";
             }
             if (!conflicts.size())
                 cout << "No conflicts, fine.\n";
@@ -283,7 +295,7 @@ int main(int argc, char *argv[])
     if (linter_ign)
     {
         cout << "<=== Linter bypassed lines ===>\n";
-        vector<_GX_linter_ignored_t> ignored_lines = _inspector_.linter_ignored_lines;
+        vector<_GX_linter_ignored_t> ignored_lines = _inspector_.linter_ignored_lines();
         for (uint32_t i = 0; i < ignored_lines.size(); i++)
         {
             cout << "[" << ignored_lines[i].filename << "]: line " << ignored_lines[i].line_idx << " ignored.\n";
@@ -293,18 +305,21 @@ int main(int argc, char *argv[])
     if (circular_inclusion)
     {
         cout << "<=== Circular Inclusion Check ===>\n";
-        vector<vector<string>> circular = _inspector_.circular_includes();
-        for (uint32_t i = 0; i < circular.size(); i++)
+
+        bool conflicted = false;
+        for (uint32_t i = 0; i < _inspector_.attachments.size(); i++)
         {
-            for (uint32_t j = 0; j < circular[i].size(); j++)
+            vector<string> circular = _inspector_.circular_includes(i);
+            for (uint32_t j = 0; j < circular.size(); j++)
             {
                 if (j)
                     cout << " -> ";
                 cout << circular[i][j];
+                conflicted = true;
             }
             cout << "\n";
         }
-        if (!circular.size())
+        if (!conflicted)
             cout << "No circular inclusion, fine.\n";
     }
 
