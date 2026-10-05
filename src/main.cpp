@@ -169,7 +169,13 @@ int main(int argc, char *argv[])
         cout << "<=== Registers ===>\n";
         for (_GX_register_t r : _inspector_.registers())
         {
-            cout << r.name << " (" << r.type << ")\n";
+            if (r.type == "numeric")
+                cout << r.name << " (numeric)\n";
+        }
+        for (_GX_register_t r : _inspector_.registers())
+        {
+            if (r.type == "float")
+                cout << r.name << " (float)\n";
         }
     }
     if (labels)

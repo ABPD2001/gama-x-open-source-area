@@ -239,6 +239,7 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
 {
     vector<_GX_register_t> regs;
     vector<string> reg_names;
+    const string no_reg_instructions[] = {"reset", "transpile", "call", "jmp", "cmptxt", "debug"};
 
     for (_GX_file_t f : this->files)
     {
@@ -246,13 +247,15 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
         for (string l : lines)
         {
             l = trim(l);
-            if (l.find(":") == string::npos || l[0] == '.' || l == "end")
+            if (l.find(":") != string::npos || l[0] == '.' || l == "end")
                 continue;
             const vector<string> parts = split(l, ' ');
             if (parts.size() < 2)
                 continue;
             const vector<string> commas = split(parts[1], ',');
 
+            if (includes_arr<const string, 6>(no_reg_instructions, parts[0]))
+                continue;
             if (parts[0] == "mvfr")
             {
                 if (!includes(reg_names, commas[0]))
@@ -267,23 +270,23 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
                 if (!includes(reg_names, commas[0]))
                     regs.push_back({commas[0], "numeric"});
             }
-            else if (includes(reg_names, parts[1]))
-                continue;
             else
             {
                 if (commas.size())
                     for (uint32_t i = 0; i < commas.size(); i++)
                     {
+                        if (commas[i][0] == '#' || commas[i][0] == '"')
+                            continue;
                         if (!includes(reg_names, commas[i]))
                         {
-                            reg_names.push_back(commas[i]);
                             regs.push_back({commas[i], parts[0][0] == 'F' ? "float" : "numeric"});
+                            reg_names.push_back(commas[i]);
                         }
                     }
-                else if (!includes(reg_names, parts[1]))
+                else if (!includes(reg_names, parts[1]) && parts[1][0] != '#' && parts[1][0] != '"')
                 {
-                    reg_names.push_back(parts[1]);
                     regs.push_back({parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
+                    reg_names.push_back(parts[1]);
                 }
             }
         }
