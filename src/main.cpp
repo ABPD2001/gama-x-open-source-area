@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
             }
 
             if (mainpoint_lbl.filename.empty())
-                cout << "Mainpoint not found!\n";
+                cout << "###  Mainpoint not found  ###\n";
             else
             {
                 cout << "defined in [" << mainpoint_lbl.filename << "] at line " << mainpoint_lbl.line_idx << ".";
