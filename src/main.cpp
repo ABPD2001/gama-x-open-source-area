@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         vector<vector<_GX_label_t>> conflicts = _inspector_.label_conflicts();
         for (uint32_t i = 0; i < conflicts.size(); i++)
         {
-            cout << "-- " << conflicts[i][0].name << " --\n";
+            cout << "##  " << conflicts[i][0].name << "  ##\n";
             for (uint32_t j = 0; j < conflicts[i].size(); j++)
             {
                 cout << '[' << conflicts[i][j].filename << "] at line " << conflicts[i][j].line_idx << "\n";
