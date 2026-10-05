@@ -76,11 +76,6 @@ double to_double(string text)
 	return neg ? -output : output;
 };
 
-logictype_t to_autoNumber(string text)
-{
-	return (logictype_t)stoll(text);
-};
-
 bool isValidNumber(string text, bool decimal_accept)
 {
 	static constexpr char symbols[11] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'};

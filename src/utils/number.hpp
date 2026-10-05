@@ -4,7 +4,6 @@
 #include <string>
 #include <cmath>
 #include <vector>
-#include "../user/core.hpp"
 
 using std::pow;
 using std::stoll;
