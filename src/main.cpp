@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         cout << "<=== Labels ===>\n";
         for (_GX_label_t l : _inspector_.total_labels)
         {
-            cout << '[' << l.filename << "] " << l.name << " at line " << l.line_idx + 1 << "\n";
+            cout << '[' << l.filename << "] '" << l.name << "' at line " << l.line_idx + 1 << "\n";
         }
         cout << "\nNote: Conflicts have not been processed in this section.\n";
     }

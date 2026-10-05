@@ -20,7 +20,6 @@ void _GX_INSPECTOR_::analyze()
             string l = lines[i];
             l = split(l, '@')[0];
             l = trim(l);
-            cout << l << "\n";
             if (l.empty())
                 continue;
 
@@ -117,10 +116,8 @@ void _GX_INSPECTOR_::analyze()
             }
             else
             {
-                cout << space_parts[0] << "\n";
                 if (space_parts[0].find(":") != string::npos)
                 {
-                    cout << "label like line found\n";
                     _GX_label_t lbl;
                     lbl.name = space_parts[0].substr(0, space_parts[0].find(":"));
                     lbl.filename = f.name;
@@ -249,11 +246,13 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
         for (string l : lines)
         {
             l = trim(l);
+            if (l.find(":") == string::npos || l[0] == '.' || l == "end")
+                continue;
             const vector<string> parts = split(l, ' ');
-            const vector<string> commas = split(parts[1], ',');
-
             if (parts.size() < 2)
                 continue;
+            const vector<string> commas = split(parts[1], ',');
+
             if (parts[0] == "mvfr")
             {
                 if (!includes(reg_names, commas[0]))
@@ -272,8 +271,20 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
                 continue;
             else
             {
-                reg_names.push_back(parts[1]);
-                regs.push_back({parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
+                if (commas.size())
+                    for (uint32_t i = 0; i < commas.size(); i++)
+                    {
+                        if (!includes(reg_names, commas[i]))
+                        {
+                            reg_names.push_back(commas[i]);
+                            regs.push_back({commas[i], parts[0][0] == 'F' ? "float" : "numeric"});
+                        }
+                    }
+                else if (!includes(reg_names, parts[1]))
+                {
+                    reg_names.push_back(parts[1]);
+                    regs.push_back({parts[1], parts[0][0] == 'F' ? "float" : "numeric"});
+                }
             }
         }
     }
