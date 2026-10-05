@@ -4,6 +4,9 @@
 #include "../utils/string.hpp"
 #include "../utils/vector.hpp"
 #include "../utils/number.hpp"
+#include <iostream>
+
+using std::cout;
 
 class _GX_INSPECTOR_
 {

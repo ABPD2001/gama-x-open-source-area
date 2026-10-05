@@ -17,15 +17,17 @@ void _GX_INSPECTOR_::analyze()
         vector<string> lines = split(f.content, '\n');
         for (uint32_t i = 0; i < lines.size(); i++)
         {
-            lines[i] = split(lines[i], '@')[0];
-            lines[i] = trim(lines[i]);
-            if (lines[i].size())
+            string l = lines[i];
+            l = split(l, '@')[0];
+            l = trim(l);
+            cout << l << "\n";
+            if (l.empty())
                 continue;
 
-            const vector<string> space_parts = split(lines[0], ' ');
-            if (lines[i][0] == '.')
+            const vector<string> space_parts = split(l, ' ');
+            if (space_parts[0][0] == '.')
             {
-                lines[i] = lines[i].substr(1);
+                l = l.substr(1);
                 string attachments[] = {"include", "import", "argular", "extern"};
                 if (includes_arr<string, 4>(attachments, space_parts[0]))
                 {
@@ -91,8 +93,8 @@ void _GX_INSPECTOR_::analyze()
                     i++;
                     while (1)
                     {
-                        def.text += lines[i] + '\n';
-                        if (trim(lines[i]) == ".enddef")
+                        def.text += l + '\n';
+                        if (trim(l) == ".enddef")
                             break;
                     }
                     this->marco_instructions.push_back(def);
@@ -115,18 +117,20 @@ void _GX_INSPECTOR_::analyze()
             }
             else
             {
+                cout << space_parts[0] << "\n";
                 if (space_parts[0].find(":") != string::npos)
                 {
+                    cout << "label like line found\n";
                     _GX_label_t lbl;
-                    lbl.name = space_parts[0].substr(0, space_parts[0].find(":") - 1);
+                    lbl.name = space_parts[0].substr(0, space_parts[0].find(":"));
                     lbl.filename = f.name;
                     lbl.line_idx = i;
                     i++;
                     while (1)
                     {
-                        if (trim(lines[i]) == "end" || lines[i].find(':') != string::npos)
+                        if (trim(l) == "end" || l.find(':') != string::npos)
                             break;
-                        lbl.text += lines[i];
+                        lbl.text += l;
                         lbl.text += '\n';
                     }
                     lbl.text = lbl.text.substr(0, lbl.text.length() - 1);

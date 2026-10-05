@@ -20,7 +20,7 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
 
     for (string f : filenames)
     {
-        const fs::path path = fs::absolute(f).string();
+        const fs::path path = fs::absolute(f);
         if (fs::is_directory(path))
         {
             vector<string> childs;
@@ -28,7 +28,7 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
             for (const auto &entry : fs::directory_iterator(path))
             {
                 const string filename = entry.path().filename().string();
-                if (filename.substr(filename.length() - 3) == ".s" || filename.substr(filename.length() - 3) == ".S")
+                if (filename.substr(filename.length() - 2) == ".s" || filename.substr(filename.length() - 2) == ".S")
                     childs.push_back(fs::absolute(entry.path()).string());
             }
             read_files(files, childs);
@@ -36,7 +36,7 @@ void read_files(vector<_GX_file_t> &files, vector<string> filenames)
         else
         {
             const string filename = path.filename().string();
-            if (filename.substr(filename.length() - 3) == ".s" || filename.substr(filename.length() - 3) == ".S")
+            if (filename.substr(filename.length() - 2) == ".s" || filename.substr(filename.length() - 2) == ".S")
             {
                 stream.open(path, ios::in);
                 if (!stream.is_open())
@@ -83,7 +83,10 @@ int main(int argc, char *argv[])
     {
         const string arg = string(argv[i]);
         if (arg[0] != '-')
+        {
             filenames.push_back(arg);
+            continue;
+        }
         else if (arg == "-V" || arg == "--version")
         {
             cout << VERSION << "\n";
