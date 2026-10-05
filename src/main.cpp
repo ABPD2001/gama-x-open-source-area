@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         &mainpointC,
     };
 
-    for (uint32_t i = 0; i < argc; i++)
+    for (uint32_t i = 1; i < argc; i++)
     {
         const string arg = string(argv[i]);
         if (arg[0] != '-')
