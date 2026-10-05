@@ -26,19 +26,18 @@ void _GX_INSPECTOR_::analyze()
             const vector<string> space_parts = split(l, ' ');
             if (space_parts[0][0] == '.')
             {
-                l = l.substr(1);
-                string attachments[] = {"include", "import", "argular", "extern"};
+                string attachments[] = {".include", ".import", ".argular", ".extern"};
                 if (includes_arr<string, 4>(attachments, space_parts[0]))
                 {
                     this->attachments.push_back({space_parts[0], space_parts[1], f.name});
                     continue;
                 }
-                else if (space_parts[0] == "replace")
+                else if (space_parts[0] == ".replace" && space_parts.size() == 3)
                 {
-                    this->macros.push_back({space_parts[0], space_parts[1], f.name});
+                    this->macros.push_back({f.name, space_parts[1], space_parts[2]});
                     continue;
                 }
-                else if (space_parts[0] == "define")
+                else if (space_parts[0] == ".define")
                 {
                     _GX_define_t def;
                     _GX_define_argument_t arg;
@@ -98,7 +97,7 @@ void _GX_INSPECTOR_::analyze()
                     }
                     this->marco_instructions.push_back(def);
                 }
-                else if (space_parts[0] == "limit")
+                else if (space_parts[0] == ".limit")
                 {
                     _GX_limit_t limit;
                     limit.filename = f.name;
@@ -108,9 +107,9 @@ void _GX_INSPECTOR_::analyze()
                     limit.max = stoll(range[1]);
                     this->protection_limits.push_back(limit);
                 }
-                else if (space_parts[0] == "main")
+                else if (space_parts[0] == ".main" && space_parts.size() >= 2)
                 {
-                    _GX_mainpoint_t mp = {f.name, filter(space_parts[0], ':')};
+                    _GX_mainpoint_t mp = {f.name, space_parts[1]};
                     this->mainpoints.push_back(mp);
                 }
             }
@@ -173,6 +172,8 @@ vector<_GX_label_t> _GX_INSPECTOR_::mainpoint_conflicts()
             }
         }
     }
+    if (output.size() == 1)
+        output.clear();
     return output;
 }
 
@@ -197,7 +198,20 @@ vector<vector<_GX_label_t>> _GX_INSPECTOR_::label_conflicts()
             if (this->total_labels[i].name == lbl.name)
                 temp.push_back(this->total_labels[i]);
         }
-        output.push_back(temp);
+        if (temp.size() > 1)
+        {
+            bool push = true;
+            for (vector<_GX_label_t> &c : output)
+            {
+                if (c[0].name == lbl.name)
+                {
+                    push = false;
+                    break;
+                }
+            }
+            if (push)
+                output.push_back(temp);
+        }
     }
     return output;
 }
@@ -363,7 +377,17 @@ vector<vector<_GX_marco_t>> _GX_INSPECTOR_::macro_conflicts()
             if (this->macros[i].from == macro.from)
                 temp.push_back(this->macros[i]);
         }
-        output.push_back(temp);
+        bool push = true;
+        for (vector<_GX_marco_t> &c : output)
+        {
+            if (c[0].from == macro.from)
+            {
+                push = false;
+                break;
+            }
+        }
+        if (push)
+            output.push_back(temp);
     }
     return output;
 }

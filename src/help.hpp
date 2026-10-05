@@ -21,8 +21,8 @@ Flags:
     [-a, --attachments]:                            List attachments of program, that means, external inputs, included files and imported libraries.
     [-I, --linter-ignored-lines]:                   List lines that are gonna ignored by linter because of linter-bypassing mechanisem ('$' sign at end of line).
     [-c, --circular-inclusions]:                    Check for circular inclusion inside program (circular like: file1 -> file2 -> file1).
-    [-m, --mainpoint]:                              Check for mainpoint of program.
-    [-M, --mainpoint-conflicts]:                    Check for mainpoint conflicts by label-name or multi mainpoint definition.
+    [-mp, --mainpoint]:                              Check for mainpoint of program.
+    [-MP, --mainpoint-conflicts]:                    Check for mainpoint conflicts by label-name or multi mainpoint definition.
 
     [-A, --list-all]:                               List all listable things.
     [-C, --list-all-conflicts]:                     List all conflicted things.
