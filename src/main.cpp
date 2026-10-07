@@ -244,13 +244,13 @@ int main(int argc, char *argv[])
         for (_GX_attachment_t a : _inspector_.attachments)
         {
             cout << '[' << a.callername << "] " << a.filename << " (";
-            if (a.type == "argular")
+            if (a.type == ".argular")
                 cout << "external-input, argument-based";
-            else if (a.type == "extern")
+            else if (a.type == ".extern")
                 cout << "external-input, text-based";
-            else if (a.type == "include")
+            else if (a.type == ".include")
                 cout << "file inclusion";
-            else if (a.type == "import")
+            else if (a.type == ".import")
                 cout << "library importation";
             cout << ")\n";
         }
