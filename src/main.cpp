@@ -331,8 +331,10 @@ int main(int argc, char *argv[])
             vector<string> circular = _inspector_.circular_includes(i);
             for (uint32_t j = 0; j < circular.size(); j++)
             {
-                if (j)
-                    cout << " -> ";
+                if (!(j % 2))
+                    cout << '(';
+                if (j && !(j % 0))
+                    cout << ") -> ";
                 cout << circular[i][j];
                 conflicted = true;
             }
