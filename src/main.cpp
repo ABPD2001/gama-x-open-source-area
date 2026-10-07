@@ -342,6 +342,32 @@ int main(int argc, char *argv[])
             cout << "No circular inclusion, fine.\n";
         cout << "\n";
     }
+    if (plimits)
+    {
+        cout << "<=== Protection Limits ===>\n";
+        for (_GX_limit_t l : _inspector_.protection_limits)
+        {
+            cout << "[" << l.filename << "] '" << l.special_register_name << "' => " << l.min << " ~ " << l.max << "\n";
+        }
+        cout << "\nNote: Conflicts have not been processed in this section.\n";
+        cout << "\n";
+    }
+    if (plimitsC)
+    {
+        cout << "<=== Protection Limits (Conflicts) ===>\n";
+        vector<vector<_GX_limit_t>> conflicts = _inspector_.protection_limits_conflicts();
+        for (vector<_GX_limit_t> &c : conflicts)
+        {
+            cout << "## " << c[0].special_register_name << " ##\n";
+            for (_GX_limit_t &cc : c)
+            {
+                cout << '[' << cc.filename << ']' << " => " << cc.min << " ~ " << cc.max << "\n";
+            }
+        }
+        if (!conflicts.size())
+            cout << "No conflicts, fine.\n";
+        cout << "\n";
+    }
 
     cout << "<==== END OF INSPECT ====>\n";
 

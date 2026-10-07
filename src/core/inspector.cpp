@@ -243,7 +243,20 @@ vector<vector<_GX_limit_t>> _GX_INSPECTOR_::protection_limits_conflicts()
             if (this->protection_limits[i].special_register_name == lim.special_register_name)
                 temp.push_back(this->protection_limits[i]);
         }
-        output.push_back(temp);
+        if (temp.size() > 1)
+        {
+            bool push = true;
+            for (vector<_GX_limit_t> &o : output)
+            {
+                if (o[0].special_register_name == lim.special_register_name)
+                {
+                    push = false;
+                    break;
+                }
+            }
+            if (push)
+                output.push_back(temp);
+        }
     }
 
     return output;
