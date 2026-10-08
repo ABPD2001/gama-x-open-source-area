@@ -31,7 +31,6 @@ public:
     vector<vector<_GX_label_t>> label_conflicts();
     vector<_GX_linter_ignored_t> linter_ignored_lines();
     vector<vector<_GX_limit_t>> protection_limits_conflicts();
-    vector<string> circular_includes(uint32_t idx = 0);
     vector<vector<_GX_marco_t>> macro_conflicts();
     vector<vector<_GX_define_t>> macro_instruction_conflicts();
 

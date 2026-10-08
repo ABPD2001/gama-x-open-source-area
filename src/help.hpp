@@ -20,7 +20,6 @@ Flags:
     [-P, --defined-protection-limits-conflicts]:    List defined protection limits conflicts of program ('.limit' pre-processors). 
     [-a, --attachments]:                            List attachments of program, that means, external inputs, included files and imported libraries.
     [-I, --linter-ignored-lines]:                   List lines that are gonna ignored by linter because of linter-bypassing mechanisem ('$' sign at end of line).
-    [-c, --circular-inclusions]:                    Check for circular inclusion inside program (circular like: file1 -> file2 -> file1).
     [-mp, --mainpoint]:                              Check for mainpoint of program.
     [-MP, --mainpoint-conflicts]:                    Check for mainpoint conflicts by label-name or multi mainpoint definition.
 

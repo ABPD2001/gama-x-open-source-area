@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
 {
     vector<string> filenames;
 
-    const string flags[] = {"-r", "--registers", "-l", "--labels", "-m", "--macros", "-d", "--defined-instructions", "-p", "--defined-protection-limits", "-a", "--attachments", "-I", "--linter-ignored-lines", "-c", "--circular-inclusion", "-mp", "--mainpoint"};
+    const string flags[] = {"-r", "--registers", "-l", "--labels", "-m", "--macros", "-d", "--defined-instructions", "-p", "--defined-protection-limits", "-a", "--attachments", "-I", "--linter-ignored-lines", "-mp", "--mainpoint"};
     const string cflags[] = {"-L", "--labels-conflicts", "-M", "--macros-conflicts", "-D", "--defined-instructions-conflicts", "-P", "--defined-protections-limit-conflicts", "-MP", "--mainpoint-conflicts"};
     string trace;
     bool marcos = false, registers = false, macro = false, macrosC = false, definitions = false, definitionsC = false, attach = false, mainpoint = false, mainpointC = false, linter_ign = false, labels = false, labelsC = false, plimits = false, plimitsC = false, circular_inclusion = false;
-    bool *const bool_flags[] = {&registers, &labels, &macro, &definitions, &plimits, &attach, &linter_ign, &circular_inclusion, &mainpoint};
+    bool *const bool_flags[] = {&registers, &labels, &macro, &definitions, &plimits, &attach, &linter_ign, &mainpoint};
     bool *const bool_cflags[] = {
         &labelsC,
         &macrosC,
@@ -319,29 +319,6 @@ int main(int argc, char *argv[])
             cout << "[" << ignored_lines[i].filename << "]: line " << ignored_lines[i].line_idx << " ignored.\n";
         }
         cout << "\nWarning: linter bypassing would be dangerous often times, should be used carefully.\n";
-        cout << "\n";
-    }
-    if (circular_inclusion)
-    {
-        cout << "<=== Circular Inclusion Check ===>\n";
-
-        bool conflicted = false;
-        for (uint32_t i = 0; i < _inspector_.attachments.size(); i++)
-        {
-            vector<string> circular = _inspector_.circular_includes(i);
-            for (uint32_t j = 0; j < circular.size(); j++)
-            {
-                if (!(j % 2))
-                    cout << '(';
-                if (j && !(j % 0))
-                    cout << ") -> ";
-                cout << circular[i][j];
-                conflicted = true;
-            }
-            cout << "\n";
-        }
-        if (!conflicted)
-            cout << "No circular inclusion, fine.\n";
         cout << "\n";
     }
     if (plimits)
