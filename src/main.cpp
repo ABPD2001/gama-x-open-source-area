@@ -300,9 +300,9 @@ int main(int argc, char *argv[])
             {
                 cout << "## conflict in [" << m.filename << "] that defined as '" << m.name << "': ";
                 if (m.text.empty())
-                    cout << "mainpoint declared again.";
+                    cout << "mainpoint re-declared.";
                 else
-                    cout << "label-related conflict.";
+                    cout << "at line " << m.line_idx + 1 << ", label re-defined.";
                 cout << "\n";
             }
             if (!conflicts.size())

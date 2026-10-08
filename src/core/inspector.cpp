@@ -124,10 +124,11 @@ void _GX_INSPECTOR_::analyze()
                     i++;
                     while (1)
                     {
-                        if (trim(l) == "end" || l.find(':') != string::npos)
+                        if (trim(l) == "end" || lines[i].find(':') != string::npos || i >= lines.size())
                             break;
-                        lbl.text += l;
+                        lbl.text += lines[i];
                         lbl.text += '\n';
+                        i++;
                     }
                     lbl.text = lbl.text.substr(0, lbl.text.length() - 1);
                     this->total_labels.push_back(lbl);
@@ -153,7 +154,6 @@ vector<_GX_label_t> _GX_INSPECTOR_::mainpoint_conflicts()
                     {
                         output.push_back(lbl);
                         found = true;
-                        break;
                     }
                 }
                 if (!found)
