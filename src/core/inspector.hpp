@@ -27,7 +27,6 @@ public:
     // conflicts.
 
     vector<_GX_label_t> mainpoint_conflicts();
-    uint32_t mainpoint_verified();
     vector<vector<_GX_label_t>> label_conflicts();
     vector<_GX_linter_ignored_t> linter_ignored_lines();
     vector<vector<_GX_limit_t>> protection_limits_conflicts();

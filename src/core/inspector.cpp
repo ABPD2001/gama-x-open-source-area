@@ -41,6 +41,7 @@ void _GX_INSPECTOR_::analyze()
                 {
                     _GX_define_t def;
                     _GX_define_argument_t arg;
+                    cout << "define\n";
                     def.name = space_parts[1];
                     def.filename = f.name;
                     const vector<string> params = split(space_parts[2], ',');
@@ -91,8 +92,8 @@ void _GX_INSPECTOR_::analyze()
                     i++;
                     while (1)
                     {
-                        def.text += l + '\n';
-                        if (trim(l) == ".enddef")
+                        def.text += lines[i] + '\n';
+                        if (trim(lines[i]) == ".enddef")
                             break;
                     }
                     this->marco_instructions.push_back(def);
@@ -121,10 +122,9 @@ void _GX_INSPECTOR_::analyze()
                     lbl.name = space_parts[0].substr(0, space_parts[0].find(":"));
                     lbl.filename = f.name;
                     lbl.line_idx = i;
-                    i++;
                     while (1)
                     {
-                        if (trim(l) == "end" || lines[i].find(':') != string::npos || i >= lines.size())
+                        if (i >= lines.size() || trim(lines[i]) == "end" || lines[i].find(':') != string::npos)
                             break;
                         lbl.text += lines[i];
                         lbl.text += '\n';
@@ -175,15 +175,6 @@ vector<_GX_label_t> _GX_INSPECTOR_::mainpoint_conflicts()
     if (output.size() == 1)
         output.clear();
     return output;
-}
-
-uint32_t _GX_INSPECTOR_::mainpoint_verified()
-{
-    if (this->mainpoint_conflicts().size())
-        return 1;
-    if (!this->mainpoints.size())
-        return 2;
-    return 0;
 }
 
 vector<vector<_GX_label_t>> _GX_INSPECTOR_::label_conflicts()

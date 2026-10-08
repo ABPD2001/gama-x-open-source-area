@@ -98,16 +98,21 @@ int main(int argc, char *argv[])
             return 0;
         }
         else if (arg == "-A" || arg == "--list-all")
-            for (uint32_t i = 0; i < 18; i++)
+        {
+            for (uint32_t i = 0; i < 8; i++)
             {
                 *(bool_flags[i]) = true;
-            }
+            };
+            continue;
+        }
         else if (arg == "-C" || arg == "--list-all-conflicts")
-            for (uint32_t i = 0; i < 10; i++)
+        {
+            for (uint32_t i = 0; i < 5; i++)
             {
                 *(bool_cflags[i]) = true;
             }
-
+            continue;
+        }
         if (arg == "-T" || arg == "--trace-file")
         {
             if (i == argc - 1)
