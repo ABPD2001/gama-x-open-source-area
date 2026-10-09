@@ -37,65 +37,70 @@ void _GX_INSPECTOR_::analyze()
                     this->macros.push_back({f.name, space_parts[1], space_parts[2]});
                     continue;
                 }
-                else if (space_parts[0] == ".define")
+                else if (space_parts[0] == ".define" && space_parts.size() >= 2)
                 {
                     _GX_define_t def;
                     _GX_define_argument_t arg;
-                    cout << "define\n";
                     def.name = space_parts[1];
                     def.filename = f.name;
-                    const vector<string> params = split(space_parts[2], ',');
-                    for (string p : params)
+                    def.lidx = i;
+                    if (space_parts.size() >= 3)
                     {
-                        uint32_t lvl = 0;
-                        for (char c : p)
-                        {
-                            if (c == ' ' || c == '\t')
-                                continue;
-                            if (c == '(')
+                        const vector<string> params = split(space_parts[2], ',');
+                        if (trim(params[0]).size())
+                            for (string p : params)
                             {
-                                lvl = 1;
-                                continue;
-                            }
-                            else if (c == ')')
-                            {
-                                lvl = 2;
-                                continue;
-                            }
-                            else if (c == '=')
-                            {
-                                lvl = 3;
-                                continue;
-                            }
+                                uint32_t lvl = 0;
+                                for (char c : p)
+                                {
+                                    if (c == ' ' || c == '\t')
+                                        continue;
+                                    if (c == '(')
+                                    {
+                                        lvl = 1;
+                                        continue;
+                                    }
+                                    else if (c == ')')
+                                    {
+                                        lvl = 2;
+                                        continue;
+                                    }
+                                    else if (c == '=')
+                                    {
+                                        lvl = 3;
+                                        continue;
+                                    }
+                                    switch (lvl)
+                                    {
+                                    case 0:
+                                        arg.name += c;
+                                        break;
 
-                            switch (lvl)
-                            {
-                            case 0:
-                                arg.name += c;
-                                break;
-
-                            case 1:
-                                arg.type += c;
-                                break;
-                            case 3:
-                                arg.value += c;
-                                break;
-                            default:
-                                break;
+                                    case 1:
+                                        arg.type += c;
+                                        break;
+                                    case 3:
+                                        arg.value += c;
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                                def.arguments.push_back(arg);
+                                arg.name = "";
+                                arg.type = "";
+                                arg.value = "";
+                                lvl = 0;
                             }
-                        }
-                        def.arguments.push_back(arg);
-                        arg.name.clear();
-                        arg.type.clear();
-                        arg.value.clear();
                     }
-                    i++;
                     while (1)
                     {
                         def.text += lines[i] + '\n';
-                        if (trim(lines[i]) == ".enddef")
+                        if (trim(lines[i]) == ".enddef" || lines[i].find(".define") != string::npos)
                             break;
+                        i++;
                     }
+                    def.text = def.text.substr(0, def.text.size() - 1);
                     this->marco_instructions.push_back(def);
                 }
                 else if (space_parts[0] == ".limit")
@@ -379,12 +384,22 @@ vector<vector<_GX_define_t>> _GX_INSPECTOR_::macro_instruction_conflicts()
     for (_GX_define_t def : this->marco_instructions)
     {
         vector<_GX_define_t> temp;
+        bool push = true;
         for (uint32_t i = 0; i < this->total_labels.size(); i++)
         {
             if (this->marco_instructions[i].name == def.name)
                 temp.push_back(this->marco_instructions[i]);
         }
-        output.push_back(temp);
+        for (vector<_GX_define_t> &o : output)
+        {
+            if (o[0].name == temp[0].name)
+            {
+                push = false;
+                break;
+            }
+        }
+        if (push)
+            output.push_back(temp);
     }
     return output;
 }

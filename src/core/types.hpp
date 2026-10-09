@@ -71,6 +71,7 @@ struct _GX_define_t
     string text;
     vector<_GX_define_argument_t> arguments;
     string name;
+    uintmax_t lidx;
 };
 
 struct _GX_file_t

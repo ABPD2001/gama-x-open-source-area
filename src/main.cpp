@@ -212,35 +212,51 @@ int main(int argc, char *argv[])
         cout << "<=== Definitions (Marco-Instructions) ===>\n";
         for (_GX_define_t d : _inspector_.marco_instructions)
         {
-            cout << '[' << d.filename << "] " << d.name << ' ';
-            for (_GX_define_argument_t a : d.arguments)
+            cout << '[' << d.filename << "] at line " << (d.lidx + 1) << ", '" << d.name << "'";
+            if (d.arguments.size())
+                cout << ": ";
+            for (uint32_t i = 0; i < d.arguments.size(); i++)
             {
-                cout << a.name << '(' << a.type << ")";
-                if (a.value.size())
-                    cout << " = " << a.value << "\n";
+
+                cout << d.arguments[i].name << '(' << d.arguments[i].type << ")";
+                if (d.arguments[i].value.size())
+                    cout << " = " << d.arguments[i].value << "\n";
+                if (i != d.arguments.size() - 1)
+                    cout << ", ";
             }
+            cout << "\n";
         }
         cout << "\nNote: Conflicts have not been processed in this section.\n";
         cout << "\n";
     }
     if (definitionsC)
     {
+        cout << "<=== Definitions (Conflicts) ===>\n";
         vector<vector<_GX_define_t>> defs = _inspector_.macro_instruction_conflicts();
         for (uint32_t i = 0; i < defs.size(); i++)
         {
             cout << "##  " << defs[i][0].name << "  ##\n";
             for (uint32_t j = 0; j < defs[i].size(); j++)
             {
-                cout << '[' << defs[i][j].filename << "] " << defs[i][j].name << ' ';
-                for (_GX_define_argument_t a : defs[i][j].arguments)
+                cout << '[' << defs[i][j].filename << "] at line " << defs[i][j].lidx + 1;
+                if (defs[i][j].arguments.size())
                 {
-                    cout << a.name << '(' << a.type << ")";
-                    if (a.value.size())
-                        cout << " = " << a.value;
-                    cout << "\n";
+                    cout << ": ";
+                    for (uint32_t k = 0; k < defs[i][j].arguments.size(); k++)
+                    {
+                        cout << defs[i][j].arguments[k].name << '(' << defs[i][j].arguments[k].type << ")";
+                        if (defs[i][j].arguments[k].value.size())
+                            cout << " = " << defs[i][j].arguments[k].value << "\n";
+                        if (k != defs[i][j].arguments.size() - 1)
+                            cout << ", ";
+                    }
                 }
+
+                cout << "\n";
             }
         }
+        if (!defs.size())
+            cout << "No conflicts, fine.\n";
         cout << "\n";
     }
     if (attach)
