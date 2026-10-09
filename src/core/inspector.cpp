@@ -260,7 +260,7 @@ vector<vector<_GX_limit_t>> _GX_INSPECTOR_::protection_limits_conflicts()
 
 vector<_GX_register_t> _GX_INSPECTOR_::registers()
 {
-    vector<_GX_register_t> regs;
+    vector<_GX_register_t> regs, output;
     vector<string> reg_names;
     const string no_reg_instructions[] = {"reset", "transpile", "call", "jmp", "cmptxt", "debug"};
 
@@ -314,8 +314,13 @@ vector<_GX_register_t> _GX_INSPECTOR_::registers()
             }
         }
     }
+    for (_GX_register_t &r : regs)
+    {
+        if (r.name[0] != '$')
+            output.push_back({r.filename, filter(r.name, '$'), r.type});
+    }
 
-    return regs;
+    return output;
 }
 
 vector<string> _GX_INSPECTOR_::module_files()

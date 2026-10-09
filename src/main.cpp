@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
 {
     vector<string> filenames;
 
-    const string flags[] = {"-r", "--registers", "-l", "--labels", "-m", "--macros", "-d", "--defined-instructions", "-p", "--defined-protection-limits", "-a", "--attachments", "-I", "--linter-ignored-lines", "-mp", "--mainpoint"};
+    const string flags[] = {"-r", "--registers", "-l", "--labels", "-m", "--macros", "-d", "--defined-instructions", "-p", "--defined-protection-limits", "-a", "--attachments", "-I", "--linter-ignored-lines", "-mp", "--mainpoint", "-mo", "--module-files"};
     const string cflags[] = {"-L", "--labels-conflicts", "-M", "--macros-conflicts", "-D", "--defined-instructions-conflicts", "-P", "--defined-protections-limit-conflicts", "-MP", "--mainpoint-conflicts"};
     string trace;
-    bool marcos = false, registers = false, macro = false, macrosC = false, definitions = false, definitionsC = false, attach = false, mainpoint = false, mainpointC = false, linter_ign = false, labels = false, labelsC = false, plimits = false, plimitsC = false, circular_inclusion = false;
-    bool *const bool_flags[] = {&registers, &labels, &macro, &definitions, &plimits, &attach, &linter_ign, &mainpoint};
+    bool marcos = false, registers = false, modules = false, macro = false, macrosC = false, definitions = false, definitionsC = false, attach = false, mainpoint = false, mainpointC = false, linter_ign = false, labels = false, labelsC = false, plimits = false, plimitsC = false, circular_inclusion = false;
+    bool *const bool_flags[] = {&registers, &labels, &macro, &definitions, &plimits, &attach, &linter_ign, &mainpoint, &modules};
     bool *const bool_cflags[] = {
         &labelsC,
         &macrosC,
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
         }
         else if (arg == "-A" || arg == "--list-all")
         {
-            for (uint32_t i = 0; i < 8; i++)
+            for (uint32_t i = 0; i < 9; i++)
             {
                 *(bool_flags[i]) = true;
             };
@@ -366,6 +366,18 @@ int main(int argc, char *argv[])
         }
         if (!conflicts.size())
             cout << "No conflicts, fine.\n";
+        cout << "\n";
+    }
+    if (modules)
+    {
+        cout << "<=== Module Files ===>\n";
+        const vector<string> mods = _inspector_.module_files();
+        for (string m : mods)
+        {
+            cout << "[" << m << "]\n";
+        }
+        if (!mods.size())
+            cout << "There's no modular file.\n";
         cout << "\n";
     }
 
