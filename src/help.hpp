@@ -37,7 +37,7 @@ Verbs:
             [-r, --raw-output]
                 Get ready output (already processed with snippets) as input, then output multi files as raw (data-only) snippets.
                 
-                Note: '-o' (output argument) should be Specified as output filename pattern. The '#' character is
+                Note: '-o' (output argument) should be Specified as output filename pattern. The '*' character is
                 used as the file index placeholder.
 
                 Example: gxpp ... -o output#.bin
@@ -249,14 +249,14 @@ Verbs:
                     # 4 KiB per packet.
 
             [-o, --output]
-                Specify the output filename pattern. The '#' character is
+                Specify the output filename pattern. The '*' character is
                 used as the packet index placeholder.
 
                 Examples:
-                    gxpp packeter ... -o packet###.bin
+                    gxpp packeter ... -o packet***.bin
                     # packet001.bin, packet002.bin, packet003.bin
 
-                    gxpp packeter ... -o packet$.bin
+                    gxpp packeter ... -o packet*.bin
                     # packet1.bin, packet2.bin, packet3.bin
 
 
@@ -264,10 +264,10 @@ Verbs:
             gxpp packeter [FLAGS/FILES]...
 
             gxpp packeter large_data.txt -s 512 \
-                -o my_packet$$.txt
+                -o my_packet##.txt
 
             gxpp packeter large_data.bin large_data2.bin -s 1024 \
-                -o my_packet$$$$.bin
+                -o my_packet####.bin
 
 
 v1.0.0

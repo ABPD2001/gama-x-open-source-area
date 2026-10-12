@@ -43,12 +43,12 @@ void output_filename_parser(vector<string> &output_names, string output, uint32_
     string replace_str = "";
     for (char c : output)
     {
-        if (c == '#')
+        if (c == '*')
         {
             dcounts++;
-            replace_str += '#';
+            replace_str += '*';
         }
-        else if (dcounts && c != '#')
+        else if (dcounts && c != '*')
             break;
     }
     for (uint32_t i = 0; i < counts; i++)
