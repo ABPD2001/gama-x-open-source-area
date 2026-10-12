@@ -59,5 +59,7 @@ public:
 
     void finclude_bin(vector<string> fields, uint32_t size);
     void finclude(vector<_GX_SNIPPER_field_t> fields);
+
+    vector<string> raw(string content);
 };
 #endif

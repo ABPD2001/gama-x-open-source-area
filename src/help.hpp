@@ -34,6 +34,14 @@ Verbs:
             [-B, --binary-big-endian]
                 Treat input and output as big-endian binary data.
 
+            [-r, --raw-output]
+                Get ready output (already processed with snippets) as input, then output multi files as raw (data-only) snippets.
+                
+                Note: '-o' (output argument) should be Specified as output filename pattern. The '#' character is
+                used as the file index placeholder.
+
+                Example: gxpp ... -o output#.bin
+
             [-C, --config]
                 Specify the configuration file containing header/footer
                 formats and section field values.
@@ -144,6 +152,9 @@ Verbs:
 
             gxpp snipper -B -C my_config.conf data1.bin data2.bin \
                 data3.bin data4.bin -o output.bin
+
+            gxpp snipper -r -C my_config.conf data1.bin data2.bin \
+                data3.bin data4.bin -o output*.bin
 
 
     caster

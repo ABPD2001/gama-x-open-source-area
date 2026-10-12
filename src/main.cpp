@@ -19,7 +19,7 @@ _GX_CASTER_format_t *_caster_format_to_ = 0;
 string config;
 uint32_t packeter_size = 0, multi_casting = 1;
 char merge_sepc = '\0';
-bool binary = false, single_meta = false;
+bool binary = false, single_meta = false, raw_output = false;
 
 void arg_error(string argname, string reason)
 {
@@ -128,9 +128,11 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             if (argument == "-C" || argument == "--config")
                 config = value;
 
-            if (argument == "-S" || argument == "--meta-snipping")
+            else if (argument == "-S" || argument == "--meta-snipping")
                 single_meta = true;
 
+            else if (argument == "-r" || argument == "--raw-output")
+                raw_output = true;
             else if (argument == "-fc" || argument == "--footer-seperator-char")
                 _snipper_conf_.footer_content_seperator = value[0];
             else if (argument == "-Afc" || argument == "--footer-seperator-char-ascii")
@@ -669,7 +671,35 @@ int main(int argc, char **argv)
 
         temp = ""; // just in case.
 
-        if (binary)
+        if (raw_output)
+        {
+            string fullcontent;
+            for (string str : content)
+            {
+                fullcontent += trimEnd(str);
+            }
+            vector<string> contentsOut = _snipper_.raw(fullcontent), output_filenames;
+            output_filename_parser(output_filenames, output, contentsOut.size());
+            for (uint32_t j = 0; j < contentsOut.size(); j++)
+            {
+                f_out.open(output_filenames[j], ios::out);
+                if (!f_out.is_open())
+                {
+                    cout << "Failed to open (output) '" << output_filenames[j] << "'!\n";
+                    exit(1);
+                }
+                f_out.write((char *)contentsOut[j].data(), contentsOut[j].size());
+                if (f_out.bad())
+                {
+                    cout << "Failed to write into (output) '" << output_filenames[j] << "'!\n";
+                    f_out.close();
+                    exit(1);
+                }
+                f_out.close();
+            }
+            exit(1);
+        }
+        else if (binary)
         {
             vector<vector<string>> hfields, ffields;
             parse_fields_bin(ffields, hfields, config);

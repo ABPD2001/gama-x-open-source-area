@@ -185,3 +185,36 @@ string _GX_SNIPPER::binout_single(string content, vector<string> f_pointers, vec
 
     return this->snippet_output(content);
 }
+
+vector<string> _GX_SNIPPER::raw(string content)
+{
+    vector<string> snippets;
+    string temp;
+    uint32_t n = 0;
+    for (char c : content)
+    {
+        if (c == this->config_st.snippet_seperator[n])
+        {
+            n++;
+            temp += c;
+        }
+        else
+        {
+            temp = "";
+            n = 0;
+        }
+        if (n == this->config_st.snippet_seperator.size())
+        {
+            snippets.push_back(temp);
+            temp = "";
+            n = 0;
+        }
+    }
+    for (string &snip : snippets)
+    {
+        snip = snip.substr(snip.find(this->config_st.header_content_seperator) + 1);
+        snip = snip.substr(0, snip.find(this->config_st.footer_content_seperator) - 1);
+    }
+
+    return snippets;
+}
