@@ -109,8 +109,8 @@ Verbs:
                     uX          Unsigned integer of X bits (u8, u16, u32, u64, ...).
                     sX          Signed integer of X bits (s8, s16, s32, s64, ...).
 
-            [-S, --meta-snipping]
-                Enable metadata injection mode.
+            [-S, --meta-snigle]
+                Work with only one file.
 
             [-fc, --footer-separator-char]
                 Specify the character used to separate section content

@@ -21,11 +21,6 @@ uint32_t packeter_size = 0, multi_casting = 1;
 char merge_sepc = '\0';
 bool binary = false, single_meta = false, raw_output = false;
 
-void arg_error(string argname, string reason)
-{
-    cout << "Error within [" << argname << "] argument: " << reason << '\n';
-}
-
 inline string digiter(string num, uint32_t count)
 {
     string output = "";
@@ -100,7 +95,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         {
             if (i == argc - 1)
             {
-                arg_error(argument, "value missed!");
+                cout << "gxpp: error: missed argument value to '" << argument << "'!\n";
                 exit(1);
             }
             i++;
@@ -110,7 +105,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         {
             if (argument[0] == '-')
             {
-                arg_error(argument, "undefined argument!");
+                cout << "gxpp: error: unrecognized option '" << argument << "'!\n";
                 exit(1);
             }
             values.push_back(argument);
@@ -128,7 +123,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
             if (argument == "-C" || argument == "--config")
                 config = value;
 
-            else if (argument == "-S" || argument == "--meta-snipping")
+            else if (argument == "-S" || argument == "--snigle-meta")
                 single_meta = true;
 
             else if (argument == "-r" || argument == "--raw-output")
@@ -320,14 +315,14 @@ int main(int argc, char **argv)
     string output, arg;
     if (argc < 2)
     {
-        cout << "Invalid usage, verb required!\n"
+        cout << "gxpp: fatal error: no verb specified!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
     arg = argv[1];
     if (arg != "help" && arg != "version" && arg != "merge" && arg != "caster" && arg != "snipper" && arg != "packeter")
     {
-        cout << "Unkown verb '" << arg << "'!\n"
+        cout << "gxpp: error: unrecognized verb '" << arg << "'!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
@@ -348,7 +343,7 @@ int main(int argc, char **argv)
         const vector<string> outputs = split(output, ',');
         if (outputs.size() != multi_casting)
         {
-            arg_error("-o, --output", "it's incomplete!");
+            cout << "gxpp: error: incomplete argument to [-o, --output]!\n";
             exit(1);
         }
         _caster_format_to_ = new _GX_CASTER_format_t[multi_casting];
@@ -358,7 +353,7 @@ int main(int argc, char **argv)
             const string argument = argv[i];
             if (i == argc - 1 && includes<string>(valid_valuars, argv[i]))
             {
-                arg_error(argument, "value missed!");
+                cout << "gxpp: error: missed argument value to '" << argument << "'!\n";
                 exit(1);
             }
 
@@ -394,20 +389,20 @@ int main(int argc, char **argv)
         }
         if (!_caster_format_from_.format.length())
         {
-            arg_error("-f, --format-logic", "it's required!");
+            cout << "gxpp: error: argument missed to [-f, --format-logic]!\n";
             exit(1);
         }
         for (uint32_t i = 0; i < multi_casting; i++)
         {
             if (!_caster_format_to_[i].format.length())
             {
-                arg_error("-t, --target-format-logic", "it's incomplete!");
+                cout << "gxpp: error: incomplete argument to [-t, --target-format-logic]!\n";
                 exit(1);
             }
         }
         if (params.size() > 1)
         {
-            cout << "Multi-Input is not acceptable within 'caster' verb, use 'merge' verb, then try again!\n";
+            cout << "gxpp: error: multiple inputs not allowed with 'caster'; use 'merge' first\n";
             exit(1);
         }
     }
@@ -415,23 +410,23 @@ int main(int argc, char **argv)
     else if (arg == "snipper")
     {
         if (config.empty())
-            arg_error("-C, --config", "It's required!");
+            cout << "gxpp: error: missing argument to [-C, --config]!\n";
     }
 
     else if (arg == "packeter" && !packeter_size)
     {
-        arg_error("-s, --packet-size", "should be valued as more than zero!");
+        cout << "gxpp: error: packet size [-s, --packet-size] must be greater than zero!\n";
         exit(1);
     }
 
     if (!output.size())
     {
-        arg_error("-o, --output", "it's required!");
+        cout << "gxpp: error: missing argument to [-p, --output]!\n";
         exit(1);
     }
     if (!params.size())
     {
-        cout << "Invalid usage, input files required!\n"
+        cout << "gxpp: fatal error: no input file specified!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
@@ -445,7 +440,7 @@ int main(int argc, char **argv)
         f_out.open(output, (binary ? ios::out | ios::binary : ios::out));
         if (!f_out.is_open())
         {
-            cout << "Failed to open (as output) '" << output << "'!\n";
+            cout << "gxpp: error: failed to open output file '" << output << "'\n";
             exit(1);
         }
         for (string file : params)
@@ -453,7 +448,7 @@ int main(int argc, char **argv)
             f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
-                cout << "Failed to open '" << file << "'!\n";
+                cout << "gxpp: error: failed to open input file '" << file << "'\n";
                 exit(1);
             }
 
@@ -465,13 +460,13 @@ int main(int argc, char **argv)
 
             if (f_inp.bad())
             {
-                cout << "Failed to read from '" << file << "'!\n";
+                cout << "gxpp: error: failed to read from input file '" << file << "'\n";
                 goto file_action_fail;
             }
             f_out.write((char *)temp_content.data(), temp_content.size());
             if (f_out.bad())
             {
-                cout << "Failed to write into (as output) '" << output << "'!\n";
+                cout << "gxpp: error: failed to write into output file '" << output << "'\n";
                 goto file_action_fail;
             }
             f_inp.close();
@@ -497,7 +492,7 @@ int main(int argc, char **argv)
             f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
-                cout << "Failed to open '" << file << "'!\n";
+                cout << "gxpp: error: failed to open input file '" << file << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -511,7 +506,7 @@ int main(int argc, char **argv)
             }
             if (f_inp.bad())
             {
-                cout << "Failed to read from '" << file << "'!\n";
+                cout << "gxpp: error: failed to read from input file '" << file << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -524,7 +519,7 @@ int main(int argc, char **argv)
             f_out.open(output_filenames[i], (binary ? ios::out | ios::binary : ios::out));
             if (!f_out.is_open())
             {
-                cout << "Failed to open (" << (binary ? "binary as " : "") << "output) '" << output_filenames[i] << "'!\n";
+                cout << "gxpp: error: failed to open output file '" << output_filenames[i] << "'\n";
                 exit(1);
             }
 
@@ -532,7 +527,7 @@ int main(int argc, char **argv)
             f_out.close();
             if (f_out.bad())
             {
-                cout << "Failed to write into (" << (binary ? "binary as " : "") << "output) '" << output_filenames[i] << "'!\n";
+                cout << "gxpp: error: failed to write into output file '" << output_filenames[i] << "'\n";
                 f_out.close();
                 exit(1);
             }
@@ -548,7 +543,7 @@ int main(int argc, char **argv)
         f_inp.open(params[0], (_caster_format_from_.binary ? ios::in | ios::binary : ios::in));
         if (!f_inp.is_open())
         {
-            cout << "Failed to open '" << params[0] << "'!\n";
+            cout << "gxpp: error: failed to open input file '" << params[0] << "'\n";
             exit(1);
         }
 
@@ -558,7 +553,7 @@ int main(int argc, char **argv)
         }
         if (f_inp.bad())
         {
-            cout << "Failed to read from '" << params[0] << "'!\n";
+            cout << "gxpp: error: failed to read from input file '" << params[0] << "'\n";
             f_inp.close();
             exit(1);
         }
@@ -574,7 +569,7 @@ int main(int argc, char **argv)
             f_inp.open(_caster_format_to_[i].format, ios::in);
             if (!f_inp.is_open())
             {
-                cout << "Failed to open format/logic config file '" << _caster_format_to_[i].format << "'!\n";
+                cout << "gxpp: error: failed to read from config (format/logic) file '" << _caster_format_to_[i].format << "'\n";
                 exit(1);
             }
             while (f_inp.get(ch))
@@ -583,7 +578,7 @@ int main(int argc, char **argv)
             }
             if (f_inp.bad())
             {
-                cout << "Failed to read format/logic config file '" << _caster_format_to_[i].format << "'!\n";
+                cout << "gxpp: error: failed to read from config (format/logic) file '" << _caster_format_to_[i].format << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -598,7 +593,7 @@ int main(int argc, char **argv)
             f_out.open(outputs[i], (_caster_format_to_[i].binary ? ios::out | ios::binary : ios::out));
             if (!f_out.is_open())
             {
-                cout << "Failed to open (output" << (_caster_format_to_[i].binary ? " as binary" : "") << ") '" << outputs[i] << "'!\n";
+                cout << "gxpp: error: failed to open output file '" << outputs[i] << "'\n";
                 f_out.close();
                 exit(1);
             }
@@ -607,7 +602,7 @@ int main(int argc, char **argv)
             f_out.write((char *)output_str.data(), output_str.size());
             if (f_out.bad())
             {
-                cout << "Failed to write into (output" << (_caster_format_to_[i].binary ? " as binary" : "") << ") '" << outputs[i] << "'!\n";
+                cout << "gxpp: error: failed to write into output file '" << outputs[i] << "'\n";
                 f_out.close();
                 exit(1);
             }
@@ -625,7 +620,7 @@ int main(int argc, char **argv)
             f_inp.open(file, (binary ? ios::in | ios::binary : ios::in));
             if (!f_inp.is_open())
             {
-                cout << "Failed to open at '" << file << "'!\n";
+                cout << "gxpp: error: failed to open input file '" << file << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -635,7 +630,7 @@ int main(int argc, char **argv)
             }
             if (f_inp.bad())
             {
-                cout << "Failed to read at '" << file << "'!\n";
+                cout << "gxpp: error: failed to read from input file '" << file << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -649,7 +644,7 @@ int main(int argc, char **argv)
             f_inp.open(config, ios::in);
             if (!f_inp.is_open())
             {
-                cout << "Failed to open config at '" << config << "'!\n";
+                cout << "gxpp: error: failed to open config file '" << config << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -659,7 +654,7 @@ int main(int argc, char **argv)
             }
             if (f_inp.bad())
             {
-                cout << "Failed to read config at '" << config << "'!\n";
+                cout << "gxpp: error: failed to open config file '" << config << "'\n";
                 f_inp.close();
                 exit(1);
             }
@@ -685,13 +680,13 @@ int main(int argc, char **argv)
                 f_out.open(output_filenames[j], ios::out);
                 if (!f_out.is_open())
                 {
-                    cout << "Failed to open (output) '" << output_filenames[j] << "'!\n";
+                    cout << "gxpp: error: failed to open output file '" << output_filenames[j] << "'\n";
                     exit(1);
                 }
                 f_out.write((char *)contentsOut[j].data(), contentsOut[j].size());
                 if (f_out.bad())
                 {
-                    cout << "Failed to write into (output) '" << output_filenames[j] << "'!\n";
+                    cout << "gxpp: error: failed to write into output file '" << output_filenames[j] << "'\n";
                     f_out.close();
                     exit(1);
                 }
@@ -722,13 +717,13 @@ int main(int argc, char **argv)
         f_out.open(output, (binary ? ios::out | ios::binary : ios::out));
         if (!f_out.is_open())
         {
-            cout << "Failed to open (output) '" << output << "'!\n";
+            cout << "gxpp: error: failed to open output file '" << output << "'\n";
             exit(1);
         }
         f_out.write((char *)temp.data(), temp.size());
         if (f_out.bad())
         {
-            cout << "Failed to write into (output) '" << output << "'!\n";
+            cout << "gxpp: error: failed to write into output file '" << output << "'\n";
             f_out.close();
             exit(1);
         }
