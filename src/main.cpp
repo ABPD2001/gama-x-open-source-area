@@ -95,7 +95,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         {
             if (i == argc - 1)
             {
-                cout << "gxpp: error: missed argument value to '" << argument << "'!\n";
+                cout << "gxpp: fatal error: missed argument value to '" << argument << "'!\n";
                 exit(1);
             }
             i++;
@@ -105,7 +105,7 @@ void args_processing(vector<string> &values, string &output, char **argv, int ar
         {
             if (argument[0] == '-')
             {
-                cout << "gxpp: error: unrecognized option '" << argument << "'!\n";
+                cout << "gxpp: fatal error: unrecognized option '" << argument << "'!\n";
                 exit(1);
             }
             values.push_back(argument);
@@ -293,7 +293,7 @@ void read_formats(string &footer_format, string &header_format, string &content)
     }
     else
     {
-        arg_error("-C, --config", "invalid footer format!");
+        cout << "gxpp: error: invalid config [-C, --config] file footer format!\n";
         exit(1);
     }
 
@@ -304,7 +304,7 @@ void read_formats(string &footer_format, string &header_format, string &content)
     }
     else
     {
-        arg_error("-C, --config", "invalid header format!");
+        cout << "gxpp: error: invalid config [-C, --config] file header format!\n";
         exit(1);
     }
 }
@@ -389,20 +389,20 @@ int main(int argc, char **argv)
         }
         if (!_caster_format_from_.format.length())
         {
-            cout << "gxpp: error: argument missed to [-f, --format-logic]!\n";
+            cout << "gxpp: fatal error: argument missed to [-f, --format-logic]!\n";
             exit(1);
         }
         for (uint32_t i = 0; i < multi_casting; i++)
         {
             if (!_caster_format_to_[i].format.length())
             {
-                cout << "gxpp: error: incomplete argument to [-t, --target-format-logic]!\n";
+                cout << "gxpp: fatal error: incomplete argument to [-t, --target-format-logic]!\n";
                 exit(1);
             }
         }
         if (params.size() > 1)
         {
-            cout << "gxpp: error: multiple inputs not allowed with 'caster'; use 'merge' first\n";
+            cout << "gxpp: fatal error: multiple inputs not allowed with 'caster'; use 'merge' first\n";
             exit(1);
         }
     }
@@ -410,23 +410,23 @@ int main(int argc, char **argv)
     else if (arg == "snipper")
     {
         if (config.empty())
-            cout << "gxpp: error: missing argument to [-C, --config]!\n";
+            cout << "gxpp: fatal error: missing argument to [-C, --config]!\n";
     }
 
     else if (arg == "packeter" && !packeter_size)
     {
-        cout << "gxpp: error: packet size [-s, --packet-size] must be greater than zero!\n";
+        cout << "gxpp: fatal error: packet size [-s, --packet-size] must be greater than zero!\n";
         exit(1);
     }
 
     if (!output.size())
     {
-        cout << "gxpp: error: missing argument to [-p, --output]!\n";
+        cout << "gxpp: fatal error: missing argument to [-p, --output]!\n";
         exit(1);
     }
     if (!params.size())
     {
-        cout << "gxpp: fatal error: no input file specified!\n"
+        cout << "gxpp: fatal fatal error: no input file specified!\n"
              << HELP_TXT << "\n";
         exit(1);
     }
